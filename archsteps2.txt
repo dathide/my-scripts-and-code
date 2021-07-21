@@ -11,6 +11,7 @@ cfdisk /dev/nvme0n1
 # This helps avoid problems with Windows modifying the boot partition.
 mkfs.btrfs /dev/disk/by-label/archroot43
 mount -o noatime,compress-force=zstd:6,space_cache=v2 /dev/disk/by-label/archroot43 /mnt
+# Create btrfs subvolumes in /mnt. Make them similar to Fedora's format.
 mkdir /mnt/efi
 nano archsteps2.txt
 # Copy and paste this pacstrap command
