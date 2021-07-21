@@ -54,7 +54,7 @@ nano /etc/pacman.conf
 # Uncomment the two multilib lines
 pacman -Syu
 systemctl enable sddm.service
-reboot (Ctrl Alt F2 to exit plasma into the tty shell. Ctrl Alt F1 to go back)
+# Reboot (Ctrl Alt F2 to exit plasma into the tty shell. Ctrl Alt F1 to go back)
 xrandr --output DisplayPort-1 --mode “2560x1440” --left-of “DisplayPort-0”
 nano /etc/X11/xorg.conf.d/20-amdgpu.conf
 # 4 Spaces, not tabs
