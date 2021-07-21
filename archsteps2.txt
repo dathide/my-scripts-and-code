@@ -1,0 +1,68 @@
+ls /sys/firmware/efi/efivars
+ip link
+ping archlinux.org
+timedatectl set-ntp true
+lsblk
+cfdisk /dev/nvme0n1
+# 65GB partition, Type: Linux root (x86-64), Label: archroot43
+# Don't make a boot partition. Instead use SuperGrub2Disk and create scanning boot partitions.
+# This helps avoid problems with Windows modifying the boot partition.
+mkfs.btrfs /dev/disk/by-label/archroot43
+mount -o noatime,compress-force=zstd:3,space_cache=v2 /dev/disk/by-label/archroot43 /mnt
+mkdir /mnt/efi
+pacstrap /mnt base linux linux-lts linux-firmware nano dhcpcd iwd iproute2 sudo btrfs-progs dosfstools exfat-utils fuse-exfat f2fs-tools e2fsprogs ntfs-3g xfsprogs vi grub efibootmgr amd-ucode doas xorg xf86-video-amdgpu mesa lib32-mesa amdvlk lib32-amdvlk libva-mesa-driver lib32-libva-mesa-driver mesa-vdpau lib32-mesa-vdpau vkd3d lib32-vkd3d plasma konsole krusader sddm sddm-kcm pipewire-pulse firefox ttf-liberation wqy-zenhei libreoffice compsize neofetch gimp
+genfstab -U /mnt >> /mnt/etc/fstab
+nano /mnt/etc/fstab
+# Make sure compression is in btrfs lines
+arch-chroot /mnt
+ln -sf /usr/share/zoneinfo/America/Phoenix /etc/localtime
+hwclock --systohc
+nano /etc/locale.gen
+# Uncomment en_US.UTF-8
+locale-gen
+nano /etc/locale.conf
+# Set first line to LANG=en_US.UTF-8
+nano /etc/hostname
+# First line: linux-pc
+nano /etc/hosts
+# 127.0.0.1    localhost
+# ::1        localhost
+# 127.0.1.1    linux-pc.localdomain    linux-pc
+passwd
+grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
+# Uncomment GRUB_DISABLE_SUBMENU=y at the bottom of /etc/default/grub
+grub-mkconfig -o /boot/grub/grub.cfg
+exit
+reboot
+login as root
+systemctl enable dhcpcd.service
+systemctl start dhcpcd.service
+systemctl enable NetworkManager.service
+systemctl start NetworkManager.service
+nano /etc/doas.conf
+permit :wheel
+useradd -m -G users,wheel,sudo,admin,uucp -s /bin/bash sapien
+passwd sapien
+nano /etc/environment
+# Last line: EDITOR=nano
+source /etc/environment
+# Enable sudo for user
+sudo visudo
+# Uncomment wheel line with delete key
+# Esc > :w > :q
+nano /etc/pacman.conf
+# Uncomment the two multilib lines
+pacman -Syu
+systemctl enable sddm.service
+reboot (Ctrl Alt F2 to exit plasma into the tty shell. Ctrl Alt F1 to go back)
+xrandr --output DisplayPort-1 --mode “2560x1440” --left-of “DisplayPort-0”
+nano /etc/X11/xorg.conf.d/20-amdgpu.conf
+# 4 Spaces, not tabs
+# Section "Device"
+#     Identifier "AMD"
+#     Driver "amdgpu"
+#     Option "TearFree" "true"
+# EndSection
+sudo compsize -x /
+systemctl enable systemd-timesyncd
+balooctl disable
