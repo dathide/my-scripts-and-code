@@ -14,7 +14,7 @@ mount -o noatime,compress-force=zstd:6,space_cache=v2 /dev/disk/by-label/archroo
 mkdir /mnt/efi
 nano archsteps2.txt
 # Copy and paste this pacstrap command
-pacstrap /mnt base linux linux-lts linux-firmware nano dhcpcd iwd iproute2 sudo btrfs-progs dosfstools exfat-utils fuse-exfat f2fs-tools e2fsprogs ntfs-3g xfsprogs vi grub efibootmgr amd-ucode doas xorg xf86-video-amdgpu mesa lib32-mesa amdvlk lib32-amdvlk libva-mesa-driver lib32-libva-mesa-driver mesa-vdpau lib32-mesa-vdpau vkd3d lib32-vkd3d plasma konsole krusader sddm sddm-kcm pipewire-pulse firefox ttf-liberation wqy-zenhei libreoffice compsize neofetch gimp
+pacstrap /mnt base linux linux-lts linux-firmware nano dhcpcd iwd iproute2 sudo btrfs-progs dosfstools exfat-utils fuse-exfat f2fs-tools e2fsprogs ntfs-3g xfsprogs vi grub efibootmgr amd-ucode doas xorg xf86-video-amdgpu mesa lib32-mesa amdvlk lib32-amdvlk libva-mesa-driver lib32-libva-mesa-driver mesa-vdpau lib32-mesa-vdpau vkd3d lib32-vkd3d plasma konsole krusader sddm sddm-kcm firefox ttf-liberation wqy-zenhei libreoffice compsize neofetch gimp
 genfstab -U /mnt >> /mnt/etc/fstab
 nano /mnt/etc/fstab
 # Change compression level to 3.
