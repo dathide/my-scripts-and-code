@@ -35,10 +35,8 @@ grub-mkconfig -o /boot/grub/grub.cfg
 exit
 reboot
 login as root
-systemctl enable dhcpcd.service
-systemctl start dhcpcd.service
-systemctl enable NetworkManager.service
-systemctl start NetworkManager.service
+systemctl enable -- now dhcpcd.service
+systemctl enable -- now NetworkManager.service
 nano /etc/doas.conf
 permit :wheel
 useradd -m -G users,wheel,sudo,admin,uucp -s /bin/bash sapien
@@ -64,7 +62,7 @@ nano /etc/X11/xorg.conf.d/20-amdgpu.conf
 #     Option "TearFree" "true"
 # EndSection
 sudo compsize -x /
-systemctl enable systemd-timesyncd
+systemctl enable -- now systemd-timesyncd
 balooctl disable
 # Disable sub-pixel rendering
 # Download firefox config folder
