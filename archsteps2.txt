@@ -34,6 +34,7 @@ nano /etc/hosts
 # ::1        localhost
 # 127.0.1.1    linux-pc.localdomain    linux-pc
 passwd
+# Enable BTRFS snapshots as boot options in grub.
 grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
 # Uncomment GRUB_DISABLE_SUBMENU=y at the bottom of /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
