@@ -70,6 +70,6 @@ nano /etc/X11/xorg.conf.d/20-amdgpu.conf
 sudo compsize -x /
 systemctl enable -- now systemd-timesyncd
 balooctl disable
-# Disable sub-pixel rendering
+# Use script to disable font sub-pixel rendering
 # Download firefox config folder and place in home
 # Symlink personal downloads folder to ~/Downloads
