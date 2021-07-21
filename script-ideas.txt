@@ -1,2 +1,0 @@
-- Clear recent files and download history every 5 minutes from all applications I use.
-- Add a "Upscale Image x4" context menu option to Dolphin for jpg, jpeg, png, webp
