@@ -5,7 +5,7 @@ timedatectl set-ntp true
 # Download github.com/Dathide/archsteps
 lsblk
 cfdisk /dev/nvme0n1
-# 65GB partition, Type: Linux root (x86-64), Label: archroot43
+# 75GB partition, Type: Linux root (x86-64), Label: archroot43
 # Don't make a boot partition. Instead use SuperGrub2Disk on a USB or install it on a boot partition.
 # This helps avoid problems with Windows modifying the boot partition.
 mkfs.btrfs /dev/disk/by-label/archroot43
