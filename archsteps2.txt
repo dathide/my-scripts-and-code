@@ -71,4 +71,5 @@ sudo compsize -x /
 systemctl enable -- now systemd-timesyncd
 balooctl disable
 # Disable sub-pixel rendering
-# Download firefox config folder
+# Download firefox config folder and place in home
+# Symlink personal downloads folder to ~/Downloads
