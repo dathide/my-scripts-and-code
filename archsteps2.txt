@@ -55,7 +55,8 @@ sudo visudo
 # Uncomment wheel line with delete key
 # Esc > :w > :q
 nano /etc/pacman.conf
-# Uncomment the two multilib lines
+# Uncomment the two multilib lines, ParallelDownloads, and Color
+# Set ParallelDownloads to 3
 pacman -Syu
 systemctl enable sddm.service
 # Reboot (Ctrl Alt F2 to exit plasma into the tty shell. Ctrl Alt F1 to go back)
