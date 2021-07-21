@@ -48,7 +48,7 @@ nano /etc/environment
 Last line: EDITOR=nano
 source /etc/environment
 Enable sudo for user
-doas visudo
+sudo visudo
 uncomment wheel line with delete key
 Esc > :w > :q
 nano /etc/pacman.conf
@@ -64,5 +64,6 @@ Section "Device"
     Driver "amdgpu"
     Option "TearFree" "true"
 EndSection
-doas compsize -x /
+sudo compsize -x /
 systemctl enable systemd-timesyncd
+balooctl disable
