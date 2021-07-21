@@ -2,7 +2,7 @@ ls /sys/firmware/efi/efivars
 ip link
 ping archlinux.org
 timedatectl set-ntp true
-# Download github.com/Dathide/archsteps
+# Download github.com/Dathide/archstuff
 lsblk
 # Prefer creating partitions using gparted in live system.
 cfdisk /dev/nvme0n1
