@@ -1,0 +1,1 @@
+Clear recent files and download history every 5 minutes from all applications I use.
