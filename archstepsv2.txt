@@ -74,3 +74,4 @@ balooctl disable
 # Use script to disable font sub-pixel rendering
 # Download firefox config folder and place in home
 # Symlink personal downloads folder to ~/Downloads
+# Install monitor color profiles
