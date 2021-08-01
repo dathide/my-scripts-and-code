@@ -3,7 +3,7 @@ ip link
 ping archlinux.org
 timedatectl set-ntp true
 # Download github.com/Dathide/archstuff
-# Run script that allows copying specific lines of this text file, like lCopy 13
+# Run script that allows copying specific lines of this text file, like lcopy 13
 lsblk
 # Prefer creating partitions using gparted in live system.
 cfdisk /dev/nvme0n1
