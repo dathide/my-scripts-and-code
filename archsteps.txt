@@ -18,7 +18,7 @@ mkdir /mnt/efi
 mount /dev/disk/by-label/boot43 /mnt/efi
 # Create btrfs subvolumes in /mnt. Make them similar to Fedora's format.
 # Copy following line with "lc 20"
-pacstrap /mnt base linux linux-lts linux-firmware nano dhcpcd iwd iproute2 sudo btrfs-progs dosfstools exfat-utils fuse-exfat f2fs-tools e2fsprogs ntfs-3g xfsprogs vi grub efibootmgr amd-ucode doas xorg xf86-video-amdgpu mesa lib32-mesa amdvlk lib32-amdvlk libva-mesa-driver lib32-libva-mesa-driver mesa-vdpau lib32-mesa-vdpau vkd3d lib32-vkd3d plasma sddm sddm-kcm firefox ttf-liberation wqy-zenhei libreoffice compsize neofetch gimp konsole krusader kate
+pacstrap /mnt base linux linux-lts linux-firmware nano dhcpcd iwd iproute2 sudo btrfs-progs dosfstools exfat-utils fuse-exfat f2fs-tools e2fsprogs ntfs-3g xfsprogs vi grub efibootmgr amd-ucode xorg xf86-video-amdgpu mesa lib32-mesa amdvlk lib32-amdvlk libva-mesa-driver lib32-libva-mesa-driver mesa-vdpau lib32-mesa-vdpau vkd3d lib32-vkd3d plasma sddm sddm-kcm firefox ttf-liberation wqy-zenhei libreoffice compsize neofetch gimp konsole krusader kate
 genfstab -U /mnt >> /mnt/etc/fstab
 nano /mnt/etc/fstab
 # Change compression level to 3.
@@ -46,8 +46,6 @@ reboot
 # Login as root
 systemctl enable -- now dhcpcd.service
 systemctl enable -- now NetworkManager.service
-nano /etc/doas.conf
-permit :wheel
 useradd -m -G users,wheel,sudo,admin,uucp -s /bin/bash sapien
 passwd sapien
 nano /etc/environment
