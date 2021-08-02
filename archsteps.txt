@@ -48,7 +48,8 @@ nano /etc/hosts
 # ::1        localhost
 # 127.0.1.1    linux-pc.localdomain    linux-pc
 nano /etc/mkinitcpio.conf
-# Add the "keyboard" and "encrypt" HOOKS
+# Add "btrfs" to MODULES
+# Add "keyboard" and "encrypt" in HOOKS separated by spaces
 mkinitcpio -P
 nano /etc/default/grub
 # Uncomment GRUB_DISABLE_SUBMENU=y
