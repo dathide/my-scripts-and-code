@@ -1,6 +1,7 @@
 pacman -Sy xclip
 git clone https://github.com/Dathide/archstuff
 mv /archstuff/lc /bin/lc
+# Can now copy any line of this file to clipboard with "lc #"
 ls /sys/firmware/efi/efivars
 ip link
 ping archlinux.org
