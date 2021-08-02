@@ -35,7 +35,6 @@ pacstrap /mnt base linux linux-lts linux-firmware sudo nano amd-ucode btrfs-prog
 genfstab -U /mnt >> /mnt/etc/fstab
 arch-chroot /mnt
 ln -sf /usr/share/zoneinfo/America/Phoenix /etc/localtime
-
 hwclock --systohc
 nano /etc/locale.gen
 # Uncomment en_US.UTF-8
