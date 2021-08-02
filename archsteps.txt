@@ -11,7 +11,7 @@ cfdisk /dev/nvme0n1
 # 80GB partition, Type: Linux root (x86-64), Label: archroot43
 mkfs.fat -F32 /dev/disk/by-label/boot43
 mkfs.btrfs /dev/disk/by-label/archroot43
-mount -o noatime,compress-force=zstd:3,space_cache=v2 /dev/disk/by-label/archroot43 /mnt
+mount -o noatime,compress-force=zstd:6,space_cache=v2 /dev/disk/by-label/archroot43 /mnt
 mkdir /mnt/efi
 mount /dev/disk/by-label/boot43 /mnt/efi
 # Create btrfs subvolumes in /mnt. Make them similar to Fedora's format.
