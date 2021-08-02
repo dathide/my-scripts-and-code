@@ -4,8 +4,9 @@ ping archlinux.org
 timedatectl set-ntp true
 # Download github.com/Dathide/archstuff
 # Run script that allows copying specific lines of this text file, like lcopy 13
+# Prefer creating partitions using gparted in live system rather than using cfdisk.
 lsblk
-# Prefer creating partitions using gparted in live system.
+cfdisk /dev/nvme0n1
 # 276MB partition, Type: EFI System, Label: boot43
 # 80GB partition, Type: Linux root (x86-64), Label: archroot43
 mkfs.fat -F32 /dev/disk/by-label/boot43
