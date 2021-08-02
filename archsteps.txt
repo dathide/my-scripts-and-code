@@ -74,13 +74,6 @@ pacman -S mtools dosfstools exfat-utils fuse-exfat f2fs-tools e2fsprogs ntfs-3g 
 systemctl enable sddm.service
 # Reboot (Ctrl Alt F2 to exit plasma into the tty shell. Ctrl Alt F1 to go back)
 xrandr --output DisplayPort-1 --mode “2560x1440” --left-of “DisplayPort-0”
-nano /etc/X11/xorg.conf.d/20-amdgpu.conf
-# 4 Spaces, not tabs
-# Section "Device"
-#     Identifier "AMD"
-#     Driver "amdgpu"
-#     Option "TearFree" "true"
-# EndSection
 sudo compsize -x /
 systemctl enable -- now systemd-timesyncd
 balooctl disable
