@@ -31,10 +31,7 @@ pacstrap /mnt base linux linux-lts linux-firmware sudo nano amd-ucode btrfs-prog
 genfstab -U /mnt >> /mnt/etc/fstab
 arch-chroot /mnt
 ln -sf /usr/share/zoneinfo/America/Phoenix /etc/localtime
-useradd -m -G users,wheel,sudo,admin,uucp -s /bin/bash sapien
-passwd sapien
-EDITOR=nano visudo
-# Uncomment wheel line
+
 hwclock --systohc
 nano /etc/locale.gen
 # Uncomment en_US.UTF-8
@@ -54,6 +51,10 @@ grub-mkconfig -o /boot/grub/grub.cfg
 nano /etc/environment
 # Last line: EDITOR=nano
 source /etc/environment
+useradd -m -G users,wheel,sudo,admin,uucp -s /bin/bash sapien
+passwd sapien
+visudo
+# Uncomment wheel line
 nano /etc/pacman.conf
 # Uncomment the two multilib lines, ParallelDownloads = 3, and Color
 systemctl enable -- now dhcpcd.service
