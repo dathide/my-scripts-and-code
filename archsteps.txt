@@ -42,7 +42,7 @@ grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
 exit
 reboot
-login as root
+# Login as root
 systemctl enable -- now dhcpcd.service
 systemctl enable -- now NetworkManager.service
 nano /etc/doas.conf
