@@ -1,9 +1,10 @@
+pacman -Sy xclip
+git clone https://github.com/Dathide/archstuff
+mv /archstuff/lc /bin/lc
 ls /sys/firmware/efi/efivars
 ip link
 ping archlinux.org
 timedatectl set-ntp true
-# Download github.com/Dathide/archstuff
-# Run script that allows copying specific lines of this text file, like lcopy 13
 # Prefer creating partitions using gparted in live system rather than using cfdisk.
 lsblk
 cfdisk /dev/nvme0n1
@@ -15,10 +16,7 @@ mount -o noatime,compress-force=zstd:6,space_cache=v2 /dev/disk/by-label/archroo
 mkdir /mnt/efi
 mount /dev/disk/by-label/boot43 /mnt/efi
 # Create btrfs subvolumes in /mnt. Make them similar to Fedora's format.
-pacman -Sy xclip
-git clone https://github.com/Dathide/archstuff
-mv /archstuff/lc /bin/lc
-# Copy following line with a script
+# Copy following line with "lc 20"
 pacstrap /mnt base linux linux-lts linux-firmware nano dhcpcd iwd iproute2 sudo btrfs-progs dosfstools exfat-utils fuse-exfat f2fs-tools e2fsprogs ntfs-3g xfsprogs vi grub efibootmgr amd-ucode doas xorg xf86-video-amdgpu mesa lib32-mesa amdvlk lib32-amdvlk libva-mesa-driver lib32-libva-mesa-driver mesa-vdpau lib32-mesa-vdpau vkd3d lib32-vkd3d plasma sddm sddm-kcm firefox ttf-liberation wqy-zenhei libreoffice compsize neofetch gimp konsole krusader kate
 genfstab -U /mnt >> /mnt/etc/fstab
 nano /mnt/etc/fstab
