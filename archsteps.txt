@@ -30,16 +30,11 @@ mount /dev/disk/by-label/boot43 /mnt/efi
 pacstrap /mnt base linux linux-lts linux-firmware sudo nano amd-ucode btrfs-progs dhcpcd iwd iproute2 networkmanager network-manager-applet 
 genfstab -U /mnt >> /mnt/etc/fstab
 arch-chroot /mnt
-nano /etc/pacman.conf
-# Uncomment the two multilib lines, ParallelDownloads = 3, and Color
-systemctl enable -- now dhcpcd.service
-systemctl enable -- now NetworkManager.service
-pacman -Syu
-pacman -S grub grub-btrfs efibootmgr base-devel linux-headers wpa_supplicant dialog os-prober reflector git
-pacman -S mtools dosfstools exfat-utils fuse-exfat f2fs-tools e2fsprogs ntfs-3g xfsprogs vi xorg xf86-video-amdgpu mesa lib32-mesa amdvlk lib32-amdvlk libva-mesa-driver lib32-libva-mesa-driver mesa-vdpau lib32-mesa-vdpau vkd3d lib32-vkd3d plasma sddm sddm-kcm firefox ttf-liberation wqy-zenhei libreoffice compsize neofetch gimp konsole krusader kate
 ln -sf /usr/share/zoneinfo/America/Phoenix /etc/localtime
 useradd -m -G users,wheel,sudo,admin,uucp -s /bin/bash sapien
 passwd sapien
+EDITOR=nano visudo
+# Uncomment wheel line
 hwclock --systohc
 nano /etc/locale.gen
 # Uncomment en_US.UTF-8
@@ -56,16 +51,16 @@ passwd
 grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
 # Uncomment GRUB_DISABLE_SUBMENU=y at the bottom of /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
-exit
-reboot
 nano /etc/environment
 # Last line: EDITOR=nano
 source /etc/environment
-# Enable sudo for user
-sudo visudo
-# Uncomment wheel line with delete key
-# Esc > :w > :q
+nano /etc/pacman.conf
+# Uncomment the two multilib lines, ParallelDownloads = 3, and Color
+systemctl enable -- now dhcpcd.service
+systemctl enable -- now NetworkManager.service
 pacman -Syu
+pacman -S grub grub-btrfs efibootmgr base-devel linux-headers wpa_supplicant dialog os-prober reflector git
+pacman -S mtools dosfstools exfat-utils fuse-exfat f2fs-tools e2fsprogs ntfs-3g xfsprogs vi xorg xf86-video-amdgpu mesa lib32-mesa amdvlk lib32-amdvlk libva-mesa-driver lib32-libva-mesa-driver mesa-vdpau lib32-mesa-vdpau vkd3d lib32-vkd3d plasma sddm sddm-kcm firefox ttf-liberation wqy-zenhei libreoffice compsize neofetch gimp konsole krusader kate
 systemctl enable sddm.service
 # Reboot (Ctrl Alt F2 to exit plasma into the tty shell. Ctrl Alt F1 to go back)
 xrandr --output DisplayPort-1 --mode “2560x1440” --left-of “DisplayPort-0”
