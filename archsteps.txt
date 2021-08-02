@@ -14,18 +14,32 @@ cfdisk /dev/nvme0n1
 mkfs.fat -F32 /dev/disk/by-label/boot43
 mkfs.btrfs /dev/disk/by-label/archroot43
 mount -o noatime,compress-force=zstd:6,space_cache=v2 /dev/disk/by-label/archroot43 /mnt
-mkdir /mnt/efi
+# Create btrfs subvolumes in /mnt. Var must have its own subvolume for grub-btrfs to work.
+btrfs su cr /mnt/@
+btrfs su cr /mnt/@home
+btrfs su cr /mnt/@var
+btrfs su cr /mnt/@.snapshots
+umount /mnt
+mount -o noatime,compress-force=zstd:6,space_cache=v2,subvol=@ /dev/disk/by-label/archroot43 /mnt
+mkdir /mnt/{efi,home,var,.snapshots}
+mount -o noatime,compress-force=zstd:6,space_cache=v2,subvol=@home /dev/disk/by-label/archroot43 /mnt/home
+mount -o noatime,compress-force=zstd:6,space_cache=v2,subvol=@var /dev/disk/by-label/archroot43 /mnt/var
+mount -o noatime,compress-force=zstd:6,space_cache=v2,subvol=@.snapshots /dev/disk/by-label/archroot43 /mnt/.snapshots
 mount /dev/disk/by-label/boot43 /mnt/efi
-# Create btrfs subvolumes in /mnt. Make them similar to Fedora's format.
-# Copy following line with "lc 20"
-pacstrap /mnt base linux linux-lts linux-firmware sudo nano amd-ucode btrfs-progs
-
+# Copy the following line with "lc (line number)"
+pacstrap /mnt base linux linux-lts linux-firmware sudo nano amd-ucode btrfs-progs dhcpcd iwd iproute2 networkmanager network-manager-applet 
 genfstab -U /mnt >> /mnt/etc/fstab
 arch-chroot /mnt
 nano /etc/pacman.conf
 # Uncomment the two multilib lines, ParallelDownloads = 3, and Color
-pacman -S dhcpcd iwd iproute2 dosfstools exfat-utils fuse-exfat f2fs-tools e2fsprogs ntfs-3g xfsprogs vi grub efibootmgr xorg xf86-video-amdgpu mesa lib32-mesa amdvlk lib32-amdvlk libva-mesa-driver lib32-libva-mesa-driver mesa-vdpau lib32-mesa-vdpau vkd3d lib32-vkd3d plasma sddm sddm-kcm firefox ttf-liberation wqy-zenhei libreoffice compsize neofetch gimp konsole krusader kate
+systemctl enable -- now dhcpcd.service
+systemctl enable -- now NetworkManager.service
+pacman -Syu
+pacman -S grub grub-btrfs efibootmgr base-devel linux-headers wpa_supplicant dialog os-prober reflector git
+pacman -S mtools dosfstools exfat-utils fuse-exfat f2fs-tools e2fsprogs ntfs-3g xfsprogs vi xorg xf86-video-amdgpu mesa lib32-mesa amdvlk lib32-amdvlk libva-mesa-driver lib32-libva-mesa-driver mesa-vdpau lib32-mesa-vdpau vkd3d lib32-vkd3d plasma sddm sddm-kcm firefox ttf-liberation wqy-zenhei libreoffice compsize neofetch gimp konsole krusader kate
 ln -sf /usr/share/zoneinfo/America/Phoenix /etc/localtime
+useradd -m -G users,wheel,sudo,admin,uucp -s /bin/bash sapien
+passwd sapien
 hwclock --systohc
 nano /etc/locale.gen
 # Uncomment en_US.UTF-8
@@ -39,17 +53,11 @@ nano /etc/hosts
 # ::1        localhost
 # 127.0.1.1    linux-pc.localdomain    linux-pc
 passwd
-# Enable BTRFS snapshots as boot options in grub.
 grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
 # Uncomment GRUB_DISABLE_SUBMENU=y at the bottom of /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
 exit
 reboot
-# Login as root
-systemctl enable -- now dhcpcd.service
-systemctl enable -- now NetworkManager.service
-useradd -m -G users,wheel,sudo,admin,uucp -s /bin/bash sapien
-passwd sapien
 nano /etc/environment
 # Last line: EDITOR=nano
 source /etc/environment
