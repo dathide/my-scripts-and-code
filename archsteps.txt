@@ -12,19 +12,23 @@ cfdisk /dev/nvme0n1
 # 276MB partition, Type: EFI System, Label: boot43
 # 80GB partition, Type: Linux root (x86-64), Label: archroot43
 mkfs.fat -F32 /dev/disk/by-label/boot43
-mkfs.btrfs /dev/disk/by-label/archroot43
-mount -o noatime,compress-force=zstd:6,space_cache=v2 /dev/disk/by-label/archroot43 /mnt
+# Encrypt the root partition
+cryptsetup -y -v luksFormat /dev/disk/by-label/archroot43
+# Enter desired password
+cryptsetup open /dev/disk/by-label/archroot43 cryptroot
+mkfs.btrfs /dev/mapper/cryptroot
+mount -o noatime,compress-force=zstd:6,space_cache=v2 /dev/mapper/cryptroot /mnt
 # Create btrfs subvolumes in /mnt. Var must have its own subvolume for grub-btrfs to work.
 btrfs su cr /mnt/@
 btrfs su cr /mnt/@home
 btrfs su cr /mnt/@var
 btrfs su cr /mnt/@.snapshots
 umount /mnt
-mount -o noatime,compress-force=zstd:6,space_cache=v2,subvol=@ /dev/disk/by-label/archroot43 /mnt
+mount -o noatime,compress-force=zstd:6,space_cache=v2,subvol=@ /dev/mapper/cryptroot /mnt
 mkdir /mnt/{boot,home,var,.snapshots}
-mount -o noatime,compress-force=zstd:6,space_cache=v2,subvol=@home /dev/disk/by-label/archroot43 /mnt/home
-mount -o noatime,compress-force=zstd:6,space_cache=v2,subvol=@var /dev/disk/by-label/archroot43 /mnt/var
-mount -o noatime,compress-force=zstd:6,space_cache=v2,subvol=@.snapshots /dev/disk/by-label/archroot43 /mnt/.snapshots
+mount -o noatime,compress-force=zstd:6,space_cache=v2,subvol=@home /dev/mapper/cryptroot /mnt/home
+mount -o noatime,compress-force=zstd:6,space_cache=v2,subvol=@var /dev/mapper/cryptroot /mnt/var
+mount -o noatime,compress-force=zstd:6,space_cache=v2,subvol=@.snapshots /dev/mapper/cryptroot /mnt/.snapshots
 mount /dev/disk/by-label/boot43 /mnt/boot
 # Copy the following line with "lc (line number)"
 pacstrap /mnt base linux linux-lts linux-firmware sudo nano amd-ucode btrfs-progs dhcpcd iwd iproute2 networkmanager network-manager-applet 
