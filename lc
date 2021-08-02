@@ -1,3 +1,3 @@
 #!/bin/bash
 #This script sends n line of a file to the clipboard without the newline
-head -$1 text.txt | tail +$1 | tr -d '\n' | xclip -selection clipboard
+head -$1 /archstuff/archsteps.txt | tail +$1 | tr -d '\n' | xclip -selection clipboard
