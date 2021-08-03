@@ -1,21 +1,19 @@
-pacman -Sy xclip
-git clone https://github.com/Dathide/archstuff
-mv /archstuff/lc /bin/lc
-# Can now copy any line of this file to clipboard with "lc #"
 ls /sys/firmware/efi/efivars
 ip link
 ping archlinux.org
 timedatectl set-ntp true
-# Prefer creating partitions using gparted in live system rather than using cfdisk.
-lsblk
-cfdisk /dev/nvme0n1
-# 276MB partition, Type: EFI System, Label: boot43
-# 80GB partition, Type: Linux root (x86-64), Label: archroot43
-mkfs.fat -F32 /dev/disk/by-label/boot43
-# Encrypt the root partition
-cryptsetup -y -v luksFormat /dev/disk/by-label/archroot43
+# Download my scripts
+pacman -Sy xclip
+git clone https://github.com/Dathide/archstuff
+mv root/archstuff/lc /bin/lc
+# Can now copy any line of this file to clipboard with "lc #"
+# Boot into Kubuntu live image and install and open gparted.
+# 300MB partition, FAT32, Label: BOOT1
+# 82000MB partition, BTRFS, Label: ARCH1
+# Format and encrypt the root partition
+cryptsetup -y -v luksFormat /dev/disk/by-label/ARCH1
 # Enter desired password
-cryptsetup open /dev/disk/by-label/archroot43 cryptroot
+cryptsetup open /dev/disk/by-label/ARCH1 cryptroot
 mkfs.btrfs /dev/mapper/cryptroot
 mount -o noatime,compress-force=zstd:6,space_cache=v2 /dev/mapper/cryptroot /mnt
 # Create btrfs subvolumes in /mnt. Var must have its own subvolume for grub-btrfs to work.
@@ -29,7 +27,7 @@ mkdir /mnt/{boot,home,var,.snapshots}
 mount -o noatime,compress-force=zstd:6,space_cache=v2,subvol=@home /dev/mapper/cryptroot /mnt/home
 mount -o noatime,compress-force=zstd:6,space_cache=v2,subvol=@var /dev/mapper/cryptroot /mnt/var
 mount -o noatime,compress-force=zstd:6,space_cache=v2,subvol=@.snapshots /dev/mapper/cryptroot /mnt/.snapshots
-mount /dev/disk/by-label/boot43 /mnt/boot
+mount /dev/disk/by-label/BOOT43 /mnt/boot
 # Copy the following line with "lc (line number)"
 pacstrap /mnt base linux linux-lts linux-firmware sudo nano amd-ucode btrfs-progs dhcpcd iwd iproute2 networkmanager network-manager-applet 
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -51,6 +49,7 @@ nano /etc/mkinitcpio.conf
 # Add "btrfs" to MODULES
 # Add "keyboard" and "encrypt" in HOOKS separated by spaces
 mkinitcpio -P
+pacman -S grub grub-btrfs efibootmgr base-devel linux-headers wpa_supplicant dialog os-prober reflector git --needed
 nano /etc/default/grub
 # Uncomment GRUB_DISABLE_SUBMENU=y
 # In GRUB_CMDLINE_LINUX_DEFAULT, add:
@@ -67,16 +66,17 @@ visudo
 # Uncomment wheel line
 nano /etc/pacman.conf
 # Uncomment the two multilib lines, ParallelDownloads = 3, and Color
-systemctl enable -- now dhcpcd.service
-systemctl enable -- now NetworkManager.service
-pacman -Syu
-pacman -S grub grub-btrfs efibootmgr base-devel linux-headers wpa_supplicant dialog os-prober reflector git
-pacman -S mtools dosfstools exfat-utils fuse-exfat f2fs-tools e2fsprogs ntfs-3g xfsprogs vi xorg xf86-video-amdgpu mesa lib32-mesa amdvlk lib32-amdvlk libva-mesa-driver lib32-libva-mesa-driver mesa-vdpau lib32-mesa-vdpau vkd3d lib32-vkd3d plasma sddm sddm-kcm firefox chromium steam ttf-liberation wqy-zenhei libreoffice compsize neofetch gimp konsole krusader kate snapper dolphin
+systemctl enable dhcpcd.service
+systemctl enable NetworkManager.service
+pacman -S mtools dosfstools exfat-utils fuse-exfat f2fs-tools e2fsprogs ntfs-3g xfsprogs vi xorg xf86-video-amdgpu mesa lib32-mesa amdvlk lib32-amdvlk libva-mesa-driver lib32-libva-mesa-driver mesa-vdpau lib32-mesa-vdpau vkd3d lib32-vkd3d plasma sddm sddm-kcm firefox chromium steam ttf-liberation wqy-zenhei libreoffice compsize neofetch gimp konsole krusader kate snapper dolphin --needed
 systemctl enable sddm.service
-# Reboot (Ctrl Alt F2 to exit plasma into the tty shell. Ctrl Alt F1 to go back)
+systemctl enable systemd-timesyncd
+exit
+reboot
+# If SDDM doesn't open, Ctrl Alt F2 to exit plasma into the tty shell. Ctrl Alt F1 to go back.
+# Run following command if displays aren't oriented properly.
 xrandr --output DisplayPort-1 --mode “2560x1440” --left-of “DisplayPort-0”
 sudo compsize -x /
-systemctl enable -- now systemd-timesyncd
 balooctl disable
 # Use script to disable font sub-pixel rendering
 # Download firefox config folder and place in home
