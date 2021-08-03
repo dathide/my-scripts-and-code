@@ -5,7 +5,7 @@ timedatectl set-ntp true
 # Download my scripts
 pacman -Sy xclip git
 git clone https://github.com/Dathide/archstuff
-mv root/archstuff/lc /bin/lc
+mv /root/archstuff/lc /bin/lc
 # Can now copy any line of this file to clipboard with "lc #"
 # Boot into Kubuntu live image and install and open gparted.
 # 300MB partition, FAT32, Label: BOOT1
