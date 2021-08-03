@@ -3,7 +3,7 @@ ip link
 ping archlinux.org
 timedatectl set-ntp true
 # Download my scripts
-pacman -Sy xclip
+pacman -Sy xclip git
 git clone https://github.com/Dathide/archstuff
 mv root/archstuff/lc /bin/lc
 # Can now copy any line of this file to clipboard with "lc #"
