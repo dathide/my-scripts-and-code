@@ -82,3 +82,4 @@ balooctl disable
 # Download firefox config folder and place in home
 # Symlink personal downloads folder to ~/Downloads
 # Install monitor color profiles
+# Firefox hardening: www.quippd.com/writing/2021/07/26/firefox-privacy-stop-hardening-love-strict-etp.html
