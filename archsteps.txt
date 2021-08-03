@@ -60,7 +60,7 @@ grub-mkconfig -o /boot/grub/grub.cfg
 nano /etc/environment
 # Last line: EDITOR=nano
 source /etc/environment
-useradd -m -G users,wheel,sudo,admin,uucp -s /bin/bash sapien
+useradd -m -G users,wheel,uucp -s /bin/bash sapien
 passwd sapien
 visudo
 # Uncomment wheel line
