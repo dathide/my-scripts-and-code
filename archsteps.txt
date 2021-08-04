@@ -90,4 +90,5 @@ rm -rf paru
 # Install monitor color profiles
 # Firefox hardening: www.quippd.com/writing/2021/07/26/firefox-privacy-stop-hardening-love-strict-etp.html
 # Firefox enable: gfx.webrenderall
-# Right-click application launcher, edit applications, add entry for Steam with command: GDK_SCALE=2 steam
+# Rclick application launcher, edit applications, add entry for Steam with command: GDK_SCALE=2 steam
+# To get meta key to open app launcher, Rclick app launcher, configure, set shortcut to Alt+F1
