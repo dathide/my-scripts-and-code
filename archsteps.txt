@@ -85,7 +85,7 @@ git clone https://aur.archlinux.org/paru.git
 cd paru
 makepkg -si
 cd ~
-rm -r temp
+rm -rf temp
 # Disable font sub-pixel rendering
 # Download firefox config folder and place in home
 # Symlink personal downloads folder to ~/Downloads
