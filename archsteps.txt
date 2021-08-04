@@ -71,14 +71,22 @@ systemctl enable dhcpcd.service
 systemctl enable NetworkManager.service
 systemctl enable sddm.service
 systemctl enable systemd-timesyncd
+balooctl disable
 exit
 reboot
 # If SDDM doesn't open, Ctrl Alt F2 to exit plasma into the tty shell. Ctrl Alt F1 to go back.
 # Run following command if displays aren't oriented properly.
 xrandr --output DisplayPort-1 --mode “2560x1440” --left-of “DisplayPort-0”
 sudo compsize -x /
-balooctl disable
-# Use script to disable font sub-pixel rendering
+cd ~
+mkdir temp
+cd temp
+git clone https://aur.archlinux.org/paru.git
+cd paru
+makepkg -si
+cd ~
+rm -r temp
+# Disable font sub-pixel rendering
 # Download firefox config folder and place in home
 # Symlink personal downloads folder to ~/Downloads
 # Install monitor color profiles
