@@ -79,13 +79,11 @@ reboot
 xrandr --output DisplayPort-1 --mode “2560x1440” --left-of “DisplayPort-0”
 sudo compsize -x /
 cd ~
-mkdir temp
-cd temp
 git clone https://aur.archlinux.org/paru.git
 cd paru
 makepkg -si
 cd ~
-rm -rf temp
+rm -rf paru
 # Disable font sub-pixel rendering
 # Download firefox config folder and place in home
 # Symlink personal downloads folder to ~/Downloads
