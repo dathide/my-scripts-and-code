@@ -87,9 +87,7 @@ rm -rf paru
 # Disable font sub-pixel rendering
 # Download firefox config folder and place in home
 # Symlink personal downloads folder to ~/Downloads
-# Install monitor color profiles
-colormgr device-make-profile-default /org/freedesktop/ColorManager/devices/xrandr_Dell_Inc__S2719DGF_6LQM7P2_sapien_1000 icc-274dd287f2c4aca05ce09a2754a6099e
-colormgr device-make-profile-default /org/freedesktop/ColorManager/devices/xrandr_Samsung_Electric_Company_C27JG5x_HTOKA00029_sapien_1000 icc-755216eb9e0f1d6c0f00484ba5b821a9
+# KDE Settings > Shortcuts > Custom Shortcuts > Edit > New > Command/URL > Name: Set Monitor Profiles > Key: Scroll Lock > Command: Points to script that uses colormgr
 # Firefox hardening: www.quippd.com/writing/2021/07/26/firefox-privacy-stop-hardening-love-strict-etp.html
 # Firefox enable: gfx.webrenderall
 # Run ss2xSteamScaling.sh
