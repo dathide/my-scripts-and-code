@@ -88,6 +88,7 @@ rm -rf paru
 # Download firefox config folder and place in home
 # Symlink personal downloads folder to ~/Downloads
 # KDE Settings > Shortcuts > Custom Shortcuts > Edit > New > Command/URL > Name: Set Monitor Profiles > Key: Scroll Lock > Command: Points to script that uses colormgr
+# Custom shortcuts are stored in a text file at: ~/.config/khotkeysrc
 # Firefox hardening: www.quippd.com/writing/2021/07/26/firefox-privacy-stop-hardening-love-strict-etp.html
 # Firefox enable: gfx.webrenderall
 # Run ss2xSteamScaling.sh
