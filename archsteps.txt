@@ -84,7 +84,8 @@ cd paru
 makepkg -si
 cd ~
 rm -rf paru
-export PATH=/home/$USER/.local/bin:$PATH
+echo 'export PATH=/home/$USER/.local/bin:$PATH' >> ~/.bashrc
+. .bashrc
 python -m pip install --upgrade youtube-dlc
 # Disable font sub-pixel rendering
 # Download firefox config folder and place in home
