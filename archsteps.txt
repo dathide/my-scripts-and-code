@@ -72,6 +72,7 @@ systemctl enable NetworkManager.service
 systemctl enable sddm.service
 systemctl enable systemd-timesyncd
 balooctl disable
+cp /usr/share/openvpn/examples/client.conf /etc/openvpn/client/
 exit
 reboot
 # If SDDM doesn't open, Ctrl Alt F2 to exit plasma into the tty shell. Ctrl Alt F1 to go back.
