@@ -88,7 +88,7 @@ echo 'export PATH=/home/$USER/.local/bin:$PATH' >> ~/.bashrc
 . .bashrc
 python -m pip install --upgrade youtube-dlc
 sudoedit /etc/makepkg.conf
-# To speed up AUR compiling, uncomment MAKEFLAGS and set MAKEFLAGS="-j$(nproc)"
+# To speed up AUR compiling, uncomment MAKEFLAGS and set MAKEFLAGS="-j10"
 paru -S spotify corectrl
 # Disable font sub-pixel rendering
 # Download firefox config folder and place in home
