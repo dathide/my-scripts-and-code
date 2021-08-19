@@ -92,6 +92,15 @@ sudoedit /etc/makepkg.conf
 paru -S spotify corectrl
 mkdir ~/.config/autostart
 cp /usr/share/applications/org.corectrl.corectrl.desktop ~/.config/autostart/org.corectrl.corectrl.desktop
+echo 'polkit.addRule(function(action, subject) {
+    if ((action.id == "org.corectrl.helper.init" ||
+         action.id == "org.corectrl.helperkiller.init") &&
+        subject.local == true &&
+        subject.active == true &&
+        subject.isInGroup("sapien")) {
+            return polkit.Result.YES;
+    }
+});' > ~/90-corectrl.rules
 # Disable font sub-pixel rendering
 # Download firefox config folder and place in home
 # Symlink personal downloads folder to ~/Downloads
