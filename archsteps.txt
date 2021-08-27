@@ -52,7 +52,7 @@ mkinitcpio -P
 nano /etc/pacman.conf
 # Uncomment the two multilib lines, ParallelDownloads = 3, and Color
 # Preferably copy and paste the following line via nano
-pacman -S sudo nano amd-ucode btrfs-progs dhcpcd iwd iproute2 networkmanager network-manager-applet grub grub-btrfs efibootmgr base-devel linux-headers wpa_supplicant dialog os-prober reflector git mtools dosfstools exfat-utils fuse-exfat f2fs-tools e2fsprogs ntfs-3g xfsprogs vi xorg xf86-video-amdgpu mesa lib32-mesa amdvlk lib32-amdvlk libva-mesa-driver lib32-libva-mesa-driver mesa-vdpau lib32-mesa-vdpau vkd3d lib32-vkd3d plasma sddm sddm-kcm firefox steam ttf-liberation wqy-zenhei libreoffice compsize neofetch gimp konsole krusader kate snapper dolphin ark p7zip unarchiver lzop lrzip filelight gwenview kcolorchooser kompare qt5-imageformats kimageformats kipi-plugins kamera colord-kde grub-customizer tealdeer mkvtoolnix-gui vlc rust rclone kfind qbittorrent wget unzip imagemagick pacman-contrib kdialog ffmpegthumbs python-pip openvpn easy-rsa networkmanager-openvpn wine-staging winetricks giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo libxcomposite lib32-libxcomposite libxinerama lib32-libxinerama ncurses lib32-ncurses opencl-icd-loader lib32-opencl-icd-loader libxslt lib32-libxslt libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader cups samba dosbox lib32-mesa vulkan-radeon lib32-vulkan-radeon vulkan-icd-loader lib32-vulkan-icd-loader mesa-demos vulkan-tools lutris gvfs print-manager system-config-printer nss-mdns avahi cron pkgfile bash-completion --needed
+pacman -S sudo nano amd-ucode btrfs-progs dhcpcd iwd iproute2 networkmanager network-manager-applet grub grub-btrfs efibootmgr base-devel linux-headers wpa_supplicant dialog os-prober reflector git mtools dosfstools exfat-utils fuse-exfat f2fs-tools e2fsprogs ntfs-3g xfsprogs vi xorg xf86-video-amdgpu mesa lib32-mesa amdvlk lib32-amdvlk libva-mesa-driver lib32-libva-mesa-driver mesa-vdpau lib32-mesa-vdpau vkd3d lib32-vkd3d plasma sddm sddm-kcm firefox steam ttf-liberation wqy-zenhei libreoffice compsize neofetch gimp konsole krusader kate snapper dolphin ark p7zip unarchiver lzop lrzip filelight gwenview kcolorchooser kompare qt5-imageformats kimageformats kipi-plugins kamera colord-kde grub-customizer tealdeer mkvtoolnix-gui vlc rust rclone kfind qbittorrent wget unzip imagemagick pacman-contrib kdialog ffmpegthumbs python-pip openvpn easy-rsa networkmanager-openvpn wine-staging winetricks giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo libxcomposite lib32-libxcomposite libxinerama lib32-libxinerama ncurses lib32-ncurses opencl-icd-loader lib32-opencl-icd-loader libxslt lib32-libxslt libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader cups samba dosbox lib32-mesa vulkan-radeon lib32-vulkan-radeon vulkan-icd-loader lib32-vulkan-icd-loader mesa-demos vulkan-tools lutris gvfs print-manager system-config-printer nss-mdns avahi cron pkgfile bash-completion youtube-dl --needed
 nano /etc/default/grub
 # Uncomment GRUB_DISABLE_SUBMENU=y
 # In GRUB_CMDLINE_LINUX_DEFAULT, add:
@@ -89,9 +89,6 @@ rm -rf paru
 echo 'export PATH=/home/$USER/.local/bin:$PATH' >> ~/.bashrc
 echo "alias python='/usr/bin/python3.8'" >> ~/.bashrc
 . ~/.bashrc
-sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
-sudo chmod a+rx /usr/local/bin/youtube-dl
-# Use "cookies.txt" Firefox extension to export YouTube cookies ($ youtube-dl --cookies /path/to/cookies.txt)
 sudoedit /etc/makepkg.conf
 # To speed up AUR compiling, uncomment MAKEFLAGS and set MAKEFLAGS="-j6"
 paru -S spotify corectrl mangohud lib32-mangohud goverlay python38 python36
@@ -112,6 +109,7 @@ sudoedit /etc/nsswitch.conf
 # Change the hosts line to include "mdns_minimal [NOTFOUND=return]" before "resolve" and "dns"
 sudo systemctl enable --now avahi-daemon.service
 sudo systemctl enable --now cups.service
+# Use "cookies.txt" Firefox extension to export YouTube cookies ($ youtube-dl --cookies /path/to/cookies.txt)
 # Add my Login Script (which includes balooctl disable) in System Settings -> Startup & Shutdown -> Autostart
 # Disable font sub-pixel rendering
 # Download firefox config folder and place in home
