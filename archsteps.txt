@@ -87,6 +87,7 @@ makepkg -si
 cd ~
 rm -rf paru
 echo 'export PATH=/home/$USER/.local/bin:$PATH' >> ~/.bashrc
+echo "alias python='/usr/bin/python3.8'" >> ~/.bashrc
 . .bashrc
 python -m pip install --upgrade youtube-dlc
 sudoedit /etc/makepkg.conf
