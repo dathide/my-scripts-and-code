@@ -91,6 +91,7 @@ echo "alias python='/usr/bin/python3.8'" >> ~/.bashrc
 . ~/.bashrc
 sudo wget https://github.com/blackjack4494/yt-dlc/releases/latest/download/youtube-dlc -O /usr/local/bin/youtube-dlc
 sudo chmod a+rx /usr/local/bin/youtube-dlc
+# Use "cookies.txt" Firefox extension to export YouTube cookies ($ youtube-dlc --cookies /path/to/cookies.txt)
 sudoedit /etc/makepkg.conf
 # To speed up AUR compiling, uncomment MAKEFLAGS and set MAKEFLAGS="-j6"
 paru -S spotify corectrl mangohud lib32-mangohud goverlay python38 python36
