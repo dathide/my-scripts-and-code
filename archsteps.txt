@@ -117,7 +117,6 @@ sudo systemctl enable --now cups.service
 # KDE Settings > Shortcuts > Custom Shortcuts > Edit > New > Command/URL > Name: Set Monitor Profiles > Key: Scroll Lock > Command: Points to script that uses colormgr
 # Custom shortcuts are stored in a text file at: ~/.config/khotkeysrc
 # Firefox hardening: www.quippd.com/writing/2021/07/26/firefox-privacy-stop-hardening-love-strict-etp.html
-# Firefox enable: gfx.webrenderall
 # Run ss2xSteamScaling.sh
 # To get meta key to open app launcher, Rclick app launcher, configure, set shortcut to Alt+F1
 # github.com/ungoogled-software/ungoogled-chromium-archlinux
