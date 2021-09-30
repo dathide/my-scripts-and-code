@@ -121,3 +121,4 @@ sudo systemctl enable --now cups.service
 # Run ss2xSteamScaling.sh
 # To get meta key to open app launcher, Rclick app launcher, configure, set shortcut to Alt+F1
 # github.com/ungoogled-software/ungoogled-chromium-archlinux
+# System Settings > Activities > Privacy > Clear history, and then Activities > Default > Do not track usage for this activity.
