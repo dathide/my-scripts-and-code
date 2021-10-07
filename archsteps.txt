@@ -122,3 +122,5 @@ sudo systemctl enable --now cups.service
 # To get meta key to open app launcher, Rclick app launcher, configure, set shortcut to Alt+F1
 # github.com/ungoogled-software/ungoogled-chromium-archlinux
 # System Settings > Workspace Behavior > Activities > Privacy > Clear history, and then Activities > Default > Check the checkbox
+git config --global user.name "dathide"
+git config --global user.email "dathide1@outlook.com"
