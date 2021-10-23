@@ -113,6 +113,7 @@ sudo systemctl enable --now cups.service
 # Use "cookies.txt" Firefox extension to export YouTube cookies ($ youtube-dl --cookies /path/to/cookies.txt)
 # Add my Login Script (which includes balooctl disable) in System Settings -> Startup & Shutdown -> Autostart
 # Disable font sub-pixel rendering
+# Display and Monitor > Compositor > Rendering backend: OpenGL 3.1 > Latency: Force smoothest animations
 # Download firefox config folder and place in home
 # Symlink personal downloads folder to ~/Downloads
 # KDE Settings > Shortcuts > Custom Shortcuts > Edit > New > Command/URL > Name: Set Monitor Profiles > Key: Scroll Lock > Command: Points to script that uses colormgr
