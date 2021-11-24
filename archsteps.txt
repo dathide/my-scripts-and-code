@@ -126,3 +126,6 @@ sudo systemctl enable --now cups.service
 # System Settings > Workspace Behavior > Activities > Privacy > Clear history, and then Activities > Default > Check the checkbox
 git config --global user.name "dathide"
 git config --global user.email "dathide1@outlook.com"
+git clone --depth=1 https://gitlab.com/AOMediaCodec/SVT-AV1.git
+cd SVT-AV1/Build/linux
+./build.sh release
