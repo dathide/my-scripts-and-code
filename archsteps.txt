@@ -126,3 +126,7 @@ sudo systemctl enable --now cups.service
 # System Settings > Workspace Behavior > Activities > Privacy > Clear history, and then Activities > Default > Check the checkbox
 git config --global user.name "dathide"
 git config --global user.email "dathide1@outlook.com"
+wget https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz
+mkdir ffmpeg-static
+tar xvf ffmpeg-git-amd64-static.tar.xz --directory=ffmpeg-static
+sudo mv ffmpeg-static/ffmpeg ffmpeg-static/ffprobe /usr/local/bin/
