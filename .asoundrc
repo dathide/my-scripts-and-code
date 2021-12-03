@@ -1,5 +1,6 @@
 # Before using this config file, make sure you run sudo modprobe snd-aloop
-# Eg. ttable4:1,0,2,1,0,3 will join sub-devices 2 and 3 of device 0 of card 1. You can use this device with JACK.
+# Eg. ttable4:1,0,2,1,0,3 will join sub-devices 2 and 3 of device 0 of card 1
+# into one virtual multichannel device. You can use this device with JACK.
 pcm.ttable4 {
     @args [ CARD1 DEV1 SUBDEV1 CARD2 DEV2 SUBDEV2 ]
     @args.CARD1 {
