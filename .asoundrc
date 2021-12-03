@@ -1,0 +1,29 @@
+# Routes the output of "Feedback" device and "Generic" device into in "stereo2quad" virtual device
+# Copied from stackoverflow.com/questions/43939191/alsa-how-to-duplicate-a-stream-on-2-outputs-and-save-system-configs
+pcm.quad {
+    type multi
+    # Set 
+    slaves.a.pcm "dmix:Generic,0"
+    slaves.a.channels 2
+    slaves.b.pcm "dmix:Loopback,0"
+    slaves.b.channels 2
+    bindings.0 { slave a; channel 0; }
+    bindings.1 { slave a; channel 1; }
+    bindings.2 { slave b; channel 0; }
+    bindings.3 { slave b; channel 1; }
+}
+pcm.stereo2quad {
+    type route
+    slave.pcm "quad"
+    ttable.0.0 1
+    ttable.1.1 1
+    ttable.0.2 1
+    ttable.1.3 1
+}
+pcm.!default {
+    type asym
+    # Set default playback device
+    playback.pcm "plug:stereo2quad"
+    # Set default capture device
+    capture.pcm "plug:dsnoop:Generic"
+}
