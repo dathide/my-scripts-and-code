@@ -3,9 +3,10 @@
 # Copied from stackoverflow.com/questions/43939191/alsa-how-to-duplicate-a-stream-on-2-outputs-and-save-system-configs
 pcm.quad {
     type multi
-    # Set 
+    # First device to capture output of
     slaves.a.pcm "dmix:Generic,0"
     slaves.a.channels 2
+    # Second device to capture output of
     slaves.b.pcm "dmix:Loopback,0"
     slaves.b.channels 2
     bindings.0 { slave a; channel 0; }
@@ -21,6 +22,7 @@ pcm.stereo2quad {
     ttable.0.2 1
     ttable.1.3 1
 }
+# Set default devices
 pcm.!default {
     type asym
     # Set default playback device
