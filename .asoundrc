@@ -1,5 +1,5 @@
 # Routes the output of "Feedback" device and "Generic" device into in "stereo2quad" virtual device
-# Make sure that beforehand, you run "sudo modprobe snd-aloop"
+# Make sure that beforehand, you run "sudo modprobe snd-aloop" and add "snd-aloop" to /etc/modules
 # Copied from stackoverflow.com/questions/43939191/alsa-how-to-duplicate-a-stream-on-2-outputs-and-save-system-configs
 pcm.quad {
     type multi
