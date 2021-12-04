@@ -1,3 +1,3 @@
 > systemd-boot instead of grub2
-> The ideal BTRFS Arch Linux installation: https://tknk.io/gJQo
-> More secure booting with systemd-boot & UEFI stubs: https://tknk.io/kl09
+> The ideal BTRFS Arch Linux installation: https://www.reddit.com/r/archlinux/comments/qw02z5/the_ideal_btrfs_setup_on_arch_linux/
+> More secure booting with systemd-boot & UEFI stubs: https://linderud.dev/blog/mkinitcpio-v31-and-uefi-stubs/
