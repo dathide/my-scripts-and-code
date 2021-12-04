@@ -1,17 +1,60 @@
 ## This file needs to be placed in /home/$USER
-## ALSA immediately updates audio configuration when this file is saved with changes.
+## ALSA immediately updates audio configuration after this file is changed
 ## List audio cards and devices with "aplay -l" or "aplay -L"
+## Go here for more info: https://www.volkerschatz.com/noise/alsa.html
 
 # Allows playing audio on card 3 device 0, eg "aplay -D alias4card3 test.wav"
-pcm.alias4card3 {
+pcm.alias1 {
         type hw
         card 3
         device 0
 }
 
 # Allows playing audio on the card named "Generic", eg "aplay -D alias4generic test.wav"
-pcm.alias4generic {
+pcm.alias2 {
         type hw
         card "Generic"
         device 0
+}
+
+# "plughw" performs channel duplication, sample value conversion and resampling when necessary
+# aplay -D plughw:"Generic",0 test.wav
+
+# Create an ALSA PCM device which accesses your first sound card and does
+# format conversion as needed. The plugin which handles automatic format
+# conversion is the "plug" plugin. Using "aplay" on this device plays
+# audio through the "Generic" card, device 0.
+pcm_slave.slave0 {
+  pcm "hw:Generic,0"
+}
+pcm.plugtest {
+  type plug
+  slave slave0
+}
+
+# Bind two 2-channel stereo streams as one 4-channel stream
+pcm.unusable {
+    type multi
+
+    slaves.a.pcm "hw:Generic,0"
+    slaves.a.channels 2
+    slaves.b.pcm "hw:Loopback,0"
+    slaves.b.channels 2
+
+    bindings.0.slave a
+    bindings.0.channel 0
+    bindings.1.slave a
+    bindings.1.channel 1
+    bindings.2.slave b
+    bindings.2.channel 0
+    bindings.3.slave b
+    bindings.3.channel 1
+}
+pcm.quad {
+    type route
+    slave.pcm "unusable"
+    ttable.0.0 1
+    ttable.1.1 1
+    ttable.2.2 1
+    ttable.3.3 1
 }
