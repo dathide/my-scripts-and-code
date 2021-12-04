@@ -1,3 +1,4 @@
+> Use fdisk or gdisk to create partitions with discoverable data
 > Make partitions discoverable (no more fstab): https://systemd.io/DISCOVERABLE_PARTITIONS/
 > Use systemd-homed to maake a luks home directory: https://systemd.io/HOME_DIRECTORY/ https://www.freedesktop.org/software/systemd/man/homectl.html#
 > Read about the benefits of discoverable partitions: https://0pointer.net/blog/the-wondrous-world-of-discoverable-gpt-disk-images.html
