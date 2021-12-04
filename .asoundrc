@@ -1,0 +1,17 @@
+## This file needs to be placed in /home/$USER
+## ALSA immediately updates audio configuration when this file is saved with changes.
+## List audio cards and devices with "aplay -l" or "aplay -L"
+
+# Allows playing audio on card 3 device 0, eg "aplay -D alias4card3 test.wav"
+pcm.alias4card3 {
+        type hw
+        card 3
+        device 0
+}
+
+# Allows playing audio on the card named "Generic", eg "aplay -D alias4generic test.wav"
+pcm.alias4generic {
+        type hw
+        card "Generic"
+        device 0
+}
