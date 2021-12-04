@@ -1,4 +1,6 @@
+> Make partitions discoverable (no more fstab): https://systemd.io/DISCOVERABLE_PARTITIONS/ 
+> Read about the benefits of discoverable partitions: https://0pointer.net/blog/the-wondrous-world-of-discoverable-gpt-disk-images.html
 > The ideal BTRFS Arch Linux installation: https://www.reddit.com/r/archlinux/comments/qw02z5/the_ideal_btrfs_setup_on_arch_linux/
 > More secure booting with systemd-boot & UEFI stubs: https://linderud.dev/blog/mkinitcpio-v31-and-uefi-stubs/
 > How distros should handle encryption: https://0pointer.net/blog/authenticated-boot-and-disk-encryption-on-linux.html
-> How to no longer need to edit /etc/fstab: https://0pointer.net/blog/the-wondrous-world-of-discoverable-gpt-disk-images.html
+> How to no longer need to edit /etc/fstab: 
