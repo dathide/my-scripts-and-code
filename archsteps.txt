@@ -128,7 +128,7 @@ git config --global user.name "dathide"
 git config --global user.email "dathide1@outlook.com"
 wget https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz
 mkdir ffmpeg-static
-tar xvf ffmpeg-git-amd64-static.tar.xz --directory=ffmpeg-static && rm ffmpeg-git-amd64-static.tar.xz
+tar xvf ffmpeg-git-amd64-static.tar.xz --directory=ffmpeg-static --strip-components=1 && rm ffmpeg-git-amd64-static.tar.xz
 sudo mv ffmpeg-static/ffmpeg ffmpeg-static/ffprobe /usr/local/bin/
 echo "snd-aloop" >> ~/snd-aloop.conf && sudo mv ~/snd-aloop.conf /etc/modules-load.d/snd-aloop.conf
 # Copy .asoundrc from this github to /home/$USER
