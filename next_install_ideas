@@ -1,7 +1,8 @@
+> Make Zsh the default shell    https://wiki.archlinux.org/title/Zsh
 > systemd v250 changelog with cool new tech    https://github.com/systemd/systemd/blob/main/NEWS
 > Use fdisk/gdisk for discoverable partitions    https://systemd.io/DISCOVERABLE_PARTITIONS/    https://0pointer.net/blog/the-wondrous-world-of-discoverable-gpt-disk-images.html
 > Use systemd-fstab-generator and scripts to automatically add mount options to fstab    https://www.freedesktop.org/software/systemd/man/systemd-fstab-generator.html#
-  > systemd.mount(5) recommends fstab    https://www.freedesktop.org/software/systemd/man/systemd.mount.html#fstab
+   > systemd.mount(5) recommends fstab    https://www.freedesktop.org/software/systemd/man/systemd.mount.html#fstab
 > Use systemd-homed to make a luks home directory    https://systemd.io/HOME_DIRECTORY/    https://www.freedesktop.org/software/systemd/man/homectl.html#
 > A good BTRFS Arch Linux installation    https://www.reddit.com/r/archlinux/comments/qw02z5/the_ideal_btrfs_setup_on_arch_linux/
 > More secure booting with systemd-boot & UEFI stubs    https://linderud.dev/blog/mkinitcpio-v31-and-uefi-stubs/
