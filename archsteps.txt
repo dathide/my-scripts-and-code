@@ -93,7 +93,7 @@ echo "alias python='/usr/bin/python3.8'" >> ~/.bashrc
 sudoedit /etc/makepkg.conf
 # To speed up AUR compiling, uncomment MAKEFLAGS and set MAKEFLAGS="-j6"
 gpg --auto-key-locate nodefault,wkd --locate-keys torbrowser@torproject.org
-paru -S spotify corectrl mangohud lib32-mangohud goverlay python38 python36 minecraft-launcher gdlauncher-bin tor-browser protontricks vvenc-git vvdec-git crossover pacdep dcaenc-git avidemux-qt5-git
+paru -S spotify corectrl mangohud lib32-mangohud goverlay python38 python36 minecraft-launcher gdlauncher-bin tor-browser protontricks vvenc-git vvdec-git crossover pacdep dcaenc-git avidemux-qt5-git svt-vp9-git
 mkdir ~/.config/autostart
 cp /usr/share/applications/org.corectrl.corectrl.desktop ~/.config/autostart/org.corectrl.corectrl.desktop
 echo 'polkit.addRule(function(action, subject) {
