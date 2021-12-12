@@ -1,3 +1,4 @@
+> Use the linux-zen kernel by default (Might fix Minecraft keyboard inputs sometimes failing)
 > Make Zsh the default shell    https://wiki.archlinux.org/title/Zsh
 > systemd v250 changelog with cool new tech    https://github.com/systemd/systemd/blob/main/NEWS
 > Use fdisk/gdisk for discoverable partitions    https://systemd.io/DISCOVERABLE_PARTITIONS/    https://0pointer.net/blog/the-wondrous-world-of-discoverable-gpt-disk-images.html
