@@ -1,3 +1,4 @@
+> Maybe find a way to login from shell rather than through SDDM?
 > Use the linux-zen kernel by default (Might fix Minecraft keyboard inputs sometimes failing)
 > Make Zsh the default shell    https://wiki.archlinux.org/title/Zsh
 > systemd v250 changelog with cool new tech    https://github.com/systemd/systemd/blob/main/NEWS
@@ -5,7 +6,8 @@
 > Use systemd-fstab-generator and scripts to automatically add mount options to fstab    https://www.freedesktop.org/software/systemd/man/systemd-fstab-generator.html#
    > systemd.mount(5) recommends fstab    https://www.freedesktop.org/software/systemd/man/systemd.mount.html#fstab
 > Use systemd-homed to make a luks home directory    https://systemd.io/HOME_DIRECTORY/    https://www.freedesktop.org/software/systemd/man/homectl.html#
-> A good BTRFS Arch Linux installation    https://www.reddit.com/r/archlinux/comments/qw02z5/the_ideal_btrfs_setup_on_arch_linux/
+> A good BTRFS Arch Linux installation example    https://www.reddit.com/r/archlinux/comments/qw02z5/the_ideal_btrfs_setup_on_arch_linux/
 > More secure booting with systemd-boot & UEFI stubs    https://linderud.dev/blog/mkinitcpio-v31-and-uefi-stubs/    https://wiki.archlinux.org/title/Unified_kernel_image
 > Mount ESP to /efi and additionally mount an "Extended Boot Loader Partition" (XBOOTLDR) to /boot    https://wiki.archlinux.org/title/EFI_system_partition#Typical_mount_points
-> How distros should handle encryption    https://0pointer.net/blog/authenticated-boot-and-disk-encryption-on-linux.html
+> How to configure a distro for proper encryption    https://0pointer.net/blog/authenticated-boot-and-disk-encryption-on-linux.html
+> Mount external drives to a root folder like /sata1, then create shortcuts in home folder
