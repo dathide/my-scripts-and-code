@@ -133,3 +133,4 @@ tar xvf ffmpeg-git-amd64-static.tar.xz --directory=ffmpeg-static --strip-compone
 sudo mv ffmpeg-static/ffmpeg ffmpeg-static/ffprobe /usr/local/bin/ && rm -r ffmpeg-static
 echo "snd-aloop" >> ~/snd-aloop.conf && sudo mv ~/snd-aloop.conf /etc/modules-load.d/snd-aloop.conf
 # Copy .asoundrc from this github to /home/$USER
+# Download latest release of streamfx: github.com/Xaymar/obs-StreamFX/releases
