@@ -134,3 +134,4 @@ sudo mv ffmpeg-static/ffmpeg ffmpeg-static/ffprobe /usr/local/bin/ && rm -r ffmp
 echo "snd-aloop" >> ~/snd-aloop.conf && sudo mv ~/snd-aloop.conf /etc/modules-load.d/snd-aloop.conf
 # Download latest release of streamfx: github.com/Xaymar/obs-StreamFX/releases
 # Move extracted streamfx files to ~/.config/obs-studio/
+xrandr --output DisplayPort-0 --set TearFree on && xrandr --output DisplayPort-1 --set TearFree on
