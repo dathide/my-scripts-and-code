@@ -1,4 +1,5 @@
 > Create new file systems with fdisk/gdisk instead of gparted
+> Switch to PipeWire instead of PulseAudio
 > Maybe find a way to login from shell rather than through SDDM?
 > Use the linux-zen kernel by default (Might fix Minecraft keyboard inputs sometimes failing)
 > Make Zsh the default shell    https://wiki.archlinux.org/title/Zsh
