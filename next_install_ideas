@@ -14,3 +14,4 @@
 > Mount external drives to a root folder like /sata1, then create shortcuts in home folder
 > On 2nd monitor's taskbar, instead of showing open programs, display:
     > Clock, CPU temp, each thread's usage, GPU temp & usage, etc.
+> Format my drives to two RAID5 arrays, each with two drives. I don't want to run the chance of randomly losing data.
