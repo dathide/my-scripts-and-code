@@ -17,4 +17,4 @@
 > Backup my Minecraft saves via btrfs snapshots in a separate btrfs subvolume
     > Mirror the contents of the folder and the subvolume
     > Have a script create periodic backups while playing
-    > This way, region files will never have more than two copies
+    > This way, region files will never have more than two copies that are transparently compressed
