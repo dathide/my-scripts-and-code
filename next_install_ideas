@@ -14,6 +14,7 @@
 > On 2nd monitor's taskbar, instead of showing open programs, display:
     > Clock, CPU temp, each thread's usage, GPU temp & usage, etc.
 > Format my drives to two RAID5 arrays, each with two drives. I don't want to run the chance of randomly losing data.
-> Backup my Minecraft saves via btrfs snapshots.
-    > Store them on a btrfs subvolume, and have a script periodically create a snapshot of that subvolume
-    > This way, region files that haven't changed won't be copied twice
+> Backup my Minecraft saves via btrfs snapshots in a separate btrfs subvolume
+    > Mirror the contents of the folder and the subvolume
+    > Have a script create periodic backups while playing
+    > This way, region files will never have more than two copies
