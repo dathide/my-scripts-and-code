@@ -15,6 +15,6 @@
     > Clock, CPU temp, each thread's usage, GPU temp & usage, etc.
 > Format my drives to two RAID5 arrays, each with two drives. I don't want to run the chance of randomly losing data.
 > Backup my Minecraft saves via btrfs snapshots in a separate btrfs subvolume
-    > Mirror the contents of the folder and the subvolume
-    > Have a script create periodic backups while playing
+    > Mirror the contents of the MC profile and a subvolume
+    > Have a script create periodic snapshots while playing
     > This way, region files will never have more than two copies that are transparently compressed
