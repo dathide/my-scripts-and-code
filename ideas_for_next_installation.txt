@@ -1,3 +1,4 @@
+> Only put /efi on the boot partition
 > Create new file systems with fdisk/gdisk instead of gparted
 > Switch to PipeWire instead of PulseAudio
 > Maybe find a way to login from shell rather than through SDDM?
