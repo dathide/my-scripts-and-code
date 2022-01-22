@@ -137,3 +137,4 @@ echo "snd-aloop" >> ~/snd-aloop.conf && sudo mv ~/snd-aloop.conf /etc/modules-lo
 # Move extracted streamfx files to ~/.config/obs-studio/
 xrandr --output DisplayPort-0 --set TearFree on && xrandr --output DisplayPort-1 --set TearFree on
 sudo mv /etc/ImageMagick-7/policy.xml /etc/ImageMagick-7/backup_policy.xml
+# Download latest yt-dlp & move to ~/.local/bin
