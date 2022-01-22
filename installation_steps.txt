@@ -60,6 +60,7 @@ nano /etc/default/grub
 # In GRUB_CMDLINE_LINUX_DEFAULT, add:
 # cryptdevice=UUID=(device-UUID):cryptroot root=/dev/mapper/cryptroot
 # amdgpu.ppfeaturemask=0xffffffff
+# CONFIG_FW_LOADER_COMPRESS
 # At the end, add: GRUB_DISABLE_OS_PROBER=false
 passwd
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
