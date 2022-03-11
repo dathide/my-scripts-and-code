@@ -138,3 +138,5 @@ echo "snd-aloop" >> ~/snd-aloop.conf && sudo mv ~/snd-aloop.conf /etc/modules-lo
 xrandr --output DisplayPort-0 --set TearFree on && xrandr --output DisplayPort-1 --set TearFree on
 sudo mv /etc/ImageMagick-7/policy.xml /etc/ImageMagick-7/backup_policy.xml
 # Download latest yt-dlp & move to ~/.local/bin
+# Store thumnails in ram (https://www.reddit.com/r/linuxmasterrace/comments/tbj549/comment/i07tmg7/?utm_source=share&utm_medium=web2x&context=3)
+rm -r ~/.cache/thumbnails && ln -s /dev/shm ~/.cache/thumbnails
