@@ -1,0 +1,14 @@
+BEFORE PHASE1:
+fdisk g n t 1 n w (MAKE SURE TO SET TYPE TO EFI PARTITION)
+mkfs.fat -F 32 /dev/sdX
+fatlabel /dev/sdX ARCHBOOT1
+cryptsetup -y -v luksFormat --label ARCHBTRFS1 /dev/sdX
+git clone github.com/dathide/archstuff
+
+AFTER PHASE1:
+/bin/bash /home/phase2.sh
+
+AFTER PHASE2:
+exit
+umount -R /mnt
+reboot
