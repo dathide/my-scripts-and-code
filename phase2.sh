@@ -5,7 +5,12 @@ locale-gen
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
 echo "KEYMAP=us" > /etc/vconsole.conf
 echo "archlinux" > /etc/hostname
+echo "#<ip-address> <hostname.domain.org> <hostname>" > /etc/hosts
+echo "127.0.0.1 archlinux.localdomain archlinux" >> /etc/hosts
+echo "::1 localhost.localdomain localhost" >> /etc/hosts
 systemctl enable systemd-networkd.service
+encrypt btrfs
+sed -i 's/HOOKS=(/HOOKS=(encrypt btrfs /' /etc/mkinitcpio.conf
 mkinitcpio -P
 passwd
 
