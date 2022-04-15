@@ -9,8 +9,10 @@ echo "#<ip-address> <hostname.domain.org> <hostname>" > /etc/hosts
 echo "127.0.0.1 archlinux.localdomain archlinux" >> /etc/hosts
 echo "::1 localhost.localdomain localhost" >> /etc/hosts
 systemctl enable systemd-networkd.service
-sed -i 's/MODULES="/MODULES="keyboard btrfs /' /etc/mkinitcpio.conf
-sed -i 's/HOOKS=(/HOOKS=(encrypt /' /etc/mkinitcpio.conf
+sed -i 's/MODULES="/MODULES="btrfs /' /etc/mkinitcpio.conf
+sed -i 's/MODULES=(/MODULES=(btrfs /' /etc/mkinitcpio.conf
+sed -i 's/HOOKS="/HOOKS="keyboard encrypt /' /etc/mkinitcpio.conf
+sed -i 's/HOOKS=(/HOOKS=(keyboard encrypt /' /etc/mkinitcpio.conf
 mkinitcpio -P
 passwd
 
@@ -51,5 +53,5 @@ grub-mkconfig -o /boot/grub/grub.cfg
 sed -i 's/#Color/Color/' /etc/pacman.conf
 sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
 systemctl enable sddm.service
-useradd -m -G wheel -s /bin/zsh sapien
+useradd -m -G users,wheel,uucp -s /bin/zsh sapien
 passwd sapien
