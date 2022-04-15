@@ -9,10 +9,8 @@ echo "#<ip-address> <hostname.domain.org> <hostname>" > /etc/hosts
 echo "127.0.0.1 archlinux.localdomain archlinux" >> /etc/hosts
 echo "::1 localhost.localdomain localhost" >> /etc/hosts
 systemctl enable systemd-networkd.service
-sed -i 's/MODULES="/MODULES="btrfs /' /etc/mkinitcpio.conf
 sed -i 's/MODULES=(/MODULES=(btrfs /' /etc/mkinitcpio.conf
-sed -i 's/HOOKS="/HOOKS="keyboard encrypt /' /etc/mkinitcpio.conf
-sed -i 's/HOOKS=(/HOOKS=(keyboard encrypt /' /etc/mkinitcpio.conf
+sed -i 's/HOOKS=(/HOOKS=(encrypt /' /etc/mkinitcpio.conf
 mkinitcpio -P
 passwd
 
