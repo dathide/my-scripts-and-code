@@ -9,8 +9,8 @@ echo "#<ip-address> <hostname.domain.org> <hostname>" > /etc/hosts
 echo "127.0.0.1 archlinux.localdomain archlinux" >> /etc/hosts
 echo "::1 localhost.localdomain localhost" >> /etc/hosts
 systemctl enable systemd-networkd.service
-encrypt btrfs
-sed -i 's/HOOKS=(/HOOKS=(encrypt btrfs /' /etc/mkinitcpio.conf
+sed -i 's/MODULES="/MODULES="keyboard btrfs /' /etc/mkinitcpio.conf
+sed -i 's/HOOKS=(/HOOKS=(encrypt /' /etc/mkinitcpio.conf
 mkinitcpio -P
 passwd
 
@@ -42,11 +42,14 @@ echo "options root="LABEL=ARCHBTRFS1" rootflags=subvol=r1 rw" >> /efi/loader/ent
 
 bootctl --esp-path=/efi install
 '
-grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=ARCHLINUX
+
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=ARCHLINUX
+sed -i 's@GRUB_CMDLINE_LINUX_DEFAULT="@GRUB_CMDLINE_LINUX_DEFAULT="cryptdevice=UUID=0ed20ab4-ad66-4f70-bc63-fc1dd33dbe1e:crypt1 root=/dev/mapper/crypt1 amdgpu.ppfeaturemask=0xffffffff CONFIG_FW_LOADER_COMPRESS@' /etc/mkinitcpio.conf
+echo "GRUB_DISABLE_OS_PROBER=false" >> /etc/default/grub
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=ARCHLINUX
 grub-mkconfig -o /boot/grub/grub.cfg
 sed -i 's/#Color/Color/' /etc/pacman.conf
 sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
-pacman -S plasma sddm zsh sudo firefox kitty --needed
 systemctl enable sddm.service
 useradd -m -G wheel -s /bin/zsh sapien
 passwd sapien

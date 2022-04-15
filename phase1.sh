@@ -20,9 +20,9 @@ mount -o noatime,compress-force=zstd:3,subvol=r1 /dev/mapper/crypt1 /mnt
 mount --mkdir -o noatime,compress-force=zstd:3,subvol=r1home /dev/mapper/crypt1 /mnt/home
 mount --mkdir -o noatime,compress-force=zstd:3,subvol=r1var /dev/mapper/crypt1 /mnt/var
 mount --mkdir -o noatime,compress-force=zstd:3,subvol=r1snapshots /dev/mapper/crypt1 /mnt/snapshots
-mount --mkdir /dev/disk/by-label/ARCHBOOT1 /mnt/efi
-pacstrap /mnt base linux linux-firmware btrfs-progs dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs nano vim neovim man-db man-pages texinfo amd-ucode efifs grub efibootmgr
+mount --mkdir /dev/disk/by-label/ARCHBOOT1 /mnt/boot
+pacstrap /mnt base linux linux-firmware btrfs-progs dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs nano vim neovim man-db man-pages texinfo amd-ucode efifs grub efibootmgr plasma sddm zsh sudo firefox kitty
 genfstab -U /mnt >> /mnt/etc/fstab
 cp phase2.sh /mnt/home
 arch-chroot /mnt
-# /bin/bash /home/phase2.sh
+# then need to /bin/bash /home/phase2.sh
