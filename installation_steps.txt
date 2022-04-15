@@ -109,7 +109,7 @@ echo 'polkit.addRule(function(action, subject) {
     }
 });' > ~/90-corectrl.rules
 sudo mv ~/90-corectrl.rules /etc/polkit-1/rules.d/90-corectrl.rules
-# Open corectrl and set 5700XT max power to 202 Watts
+# Open corectrl and set 5700XT max power to 190 Watts
 sudoedit /etc/nsswitch.conf
 # Change the hosts line to include "mdns_minimal [NOTFOUND=return]" before "resolve" and "dns"
 sudo systemctl enable --now avahi-daemon.service
