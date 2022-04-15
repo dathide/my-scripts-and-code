@@ -9,7 +9,7 @@ if [[ ! -d "/sys/firmware/efi/efivars" ]] ; then
 fi
 timedatectl set-ntp true
 cryptsetup open /dev/disk/by-label/ARCHBTRFS1 crypt1
-mkfs.btrfs /dev/mapper/crypt1
+mkfs.btrfs -f /dev/mapper/crypt1
 mount /dev/mapper/crypt1 /mnt
 btrfs subvolume create /mnt/r1
 btrfs subvolume create /mnt/r1home
