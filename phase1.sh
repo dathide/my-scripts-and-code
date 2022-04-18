@@ -40,7 +40,7 @@ mount --mkdir -o noatime,compress-force=zstd:3,subvol=r1snapshots /dev/mapper/cr
 sleep 0.5
 mount --mkdir /dev/disk/by-label/ARCHBOOT1 /mnt/boot
 sleep 0.5
-pacstrap /mnt base linux linux-firmware btrfs-progs dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs nano vim neovim man-db man-pages texinfo amd-ucode efifs grub efibootmgr plasma-desktop sddm zsh sudo firefox kitty
+pacstrap /mnt base linux linux-firmware btrfs-progs dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs nano vim neovim man-db man-pages texinfo amd-ucode efifs grub efibootmgr cryptsetup plasma-desktop sddm zsh sudo firefox kitty
 sleep 0.5
 genfstab -U /mnt >> /mnt/etc/fstab
 sleep 0.5

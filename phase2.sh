@@ -20,6 +20,10 @@ echo "::1 localhost.localdomain localhost" >> /etc/hosts
 sleep 0.5
 systemctl enable systemd-networkd.service
 sleep 0.5
+mkdir /etc/modules-load.d
+sleep 0.5
+echo "dm_crypt" > /etc/modules-load.d/dm_crypt.conf
+sleep 0.5
 # After lines starting with MODULES, add line
 # MODULES=(btrfs)
 # From beginning to first line starting with MODULES, replace MODULES with #MODULES
