@@ -1,6 +1,5 @@
 #!/bin/bash
 cd scripts
-echo "ParallelDownloads = 5" >> /etc/pacman.conf
 loadkeys en
 timedatectl status
 read -p "Did you set the type of $1 to EFI System?" -n 1 -r
