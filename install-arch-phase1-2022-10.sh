@@ -1,4 +1,5 @@
 #!/bin/bash
+sed -i '0,/^#ParallelDownloads/{s/^#ParallelDownloads.*/ParallelDownloads = 3/}' /etc/pacman.conf
 cd scripts
 loadkeys en
 timedatectl status
