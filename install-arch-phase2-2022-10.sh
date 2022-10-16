@@ -14,7 +14,7 @@ echo "title   Arch Linux Oct 2022" > /boot/loader/entries/arch.conf
 echo "linux   /vmlinuz-linux" >> /boot/loader/entries/arch.conf
 echo "initrd  /amd-ucode.img" >> /boot/loader/entries/arch.conf
 echo "initrd  /initramfs-linux.img" >> /boot/loader/entries/arch.conf
-echo "options root=PARTUUID=$(blkid -o value -s UUID $2) rw" >> /boot/loader/entries/arch.conf
+echo "options root=PARTUUID=$(blkid -o value -s UUID $2) rootflags=subvol=subv_arch rw" >> /boot/loader/entries/arch.conf
 echo "default arch" > /boot/loader/loader.conf
 echo "timeout 4" >> /boot/loader/loader.conf
 echo "console-mode max" >> /boot/loader/loader.conf
