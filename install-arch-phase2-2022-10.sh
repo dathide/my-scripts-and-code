@@ -1,5 +1,4 @@
 #!/bin/bash
-echo "ParallelDownloads = 5" >> /etc/pacman.conf
 ln -sf /usr/share/zoneinfo/America/Phoenix /etc/localtime
 hwclock --systohc
 echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
