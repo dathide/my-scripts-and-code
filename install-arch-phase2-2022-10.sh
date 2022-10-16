@@ -1,6 +1,5 @@
 #!/bin/bash
 echo "ParallelDownloads = 5" >> /etc/pacman.conf
-pacman -S --needed amd-ucode btrfs-progs dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs networkmanager nano vi kitty firefox man-db man-pages texinfo zsh xorg nvidia nvidia-utils nvidia-settings plasma plasma-wayland-session egl-wayland kde-applications sddm sddm-kcm
 ln -sf /usr/share/zoneinfo/America/Phoenix /etc/localtime
 hwclock --systohc
 echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
