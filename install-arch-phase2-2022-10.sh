@@ -24,3 +24,4 @@ bootctl --path=/boot update
 UNAME="sapien"
 useradd -m -G "wheel" -s /bin/zsh $UNAME
 passwd $UNAME
+exit
