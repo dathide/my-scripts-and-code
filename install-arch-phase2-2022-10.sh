@@ -4,6 +4,7 @@ sudo sed -i 's/^ParallelDownloads/#ParallelDownloads/' /etc/pacman.conf
 # Replace first line that starts with #ParallelDownloads with ParallelDownloads = 5
 # Within 0 to first line starting with X, replace line starting with X with Y
 sudo sed -i '0,/^#ParallelDownloads/{s/^#ParallelDownloads.*/ParallelDownloads = 5/}' /etc/pacman.conf
+pacman -S --needed iproute2 networkmanager nano vi kitty firefox man-db man-pages texinfo zsh xorg nvidia nvidia-utils nvidia-settings plasma plasma-wayland-session egl-wayland kde-applications sddm sddm-kcm
 ln -sf /usr/share/zoneinfo/America/Phoenix /etc/localtime
 hwclock --systohc
 echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
