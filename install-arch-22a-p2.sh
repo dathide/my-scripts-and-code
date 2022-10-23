@@ -16,7 +16,7 @@ echo "title   Arch Linux Oct 2022" > /boot/loader/entries/arch.conf
 echo "linux   /vmlinuz-linux" >> /boot/loader/entries/arch.conf
 echo "initrd  /amd-ucode.img" >> /boot/loader/entries/arch.conf
 echo "initrd  /initramfs-linux.img" >> /boot/loader/entries/arch.conf
-echo "options root=PARTUUID=$(blkid -o value -s UUID $2) rootflags=subvol=subvol_fsroot rw" >> /boot/loader/entries/arch.conf
+echo "options root=PARTUUID=$(blkid -o value -s UUID $2) rootflags=subvol=subvol_os1_fsroot rw" >> /boot/loader/entries/arch.conf
 echo "default arch" > /boot/loader/loader.conf
 echo "timeout 4" >> /boot/loader/loader.conf
 echo "console-mode max" >> /boot/loader/loader.conf
@@ -25,4 +25,6 @@ bootctl --path=/boot update
 UNAME="sapien"
 useradd -m -G "wheel" -s /bin/zsh $UNAME
 passwd $UNAME
+# Prevent /var/log/journal from getting too large
+sed -i '0,/^#SystemMaxUse=/{s/^#SystemMaxUse=.*/SystemMaxUse=200M/}' /etc/systemd/journald.conf
 exit
