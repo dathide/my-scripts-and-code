@@ -9,8 +9,8 @@ read -p "Format $1 and $2? " -n 1 -r
 echo #New line
 if [[ $REPLY =~ ^[Yy]$ ]] && [ -d "/sys/firmware/efi/efivars" ]; then
     mkfs.fat -F 32 $1
-    fatlabel $1 "BOOT2"
-    mkfs.btrfs -f -L "ARCH2" $2
+    fatlabel $1 "BOOT6"
+    mkfs.btrfs -f -L "arch6" $2
     mount --mkdir $2 /root/btrfs
     btrfs subvolume create /root/btrfs/subvol_os1_fsroot
     btrfs subvolume create /root/btrfs/subvol_os1_var_cache_pacman_pkg
