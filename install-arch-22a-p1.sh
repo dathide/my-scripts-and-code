@@ -4,7 +4,7 @@ cd scripts
 loadkeys en
 timedatectl status
 read -p "Did you set the type of $1 to EFI System?" -n 1 -r
-read -p "Format $1 as boot and $2 as fsroot? " -n 1 -r
+read -p "Format $1 and $2? " -n 1 -r
 echo #New line
 if [[ $REPLY =~ ^[Yy]$ ]] && [ -d "/sys/firmware/efi/efivars" ]; then
     mkfs.fat -F 32 $1
