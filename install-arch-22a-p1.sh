@@ -5,7 +5,7 @@ loadkeys en
 timedatectl status
 read -p "Did you set the type of $1 to EFI System?" -n 1 -r
 echo #New line
-read -p "Format $1 and $2? " -n 1 -r
+read -p "Format $1 (boot) and $2? " -n 1 -r
 echo #New line
 if [[ $REPLY =~ ^[Yy]$ ]] && [ -d "/sys/firmware/efi/efivars" ]; then
     mkfs.fat -F 32 $1
@@ -23,5 +23,5 @@ if [[ $REPLY =~ ^[Yy]$ ]] && [ -d "/sys/firmware/efi/efivars" ]; then
     P2="install-arch-22a-p2.sh"
     cp $P2 /mnt/root/$P2
     arch-chroot /mnt /bin/bash /root/$P2 $1 $2
-    umount -R /mnt
+    #umount -R /mnt
 fi

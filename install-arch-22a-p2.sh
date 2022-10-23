@@ -15,12 +15,12 @@ echo "title     Arch Linux 22a
 linux    /vmlinuz-linux
 initrd   /amd-ucode.img
 initrd   /initramfs-linux.img
-options root=\"LABEL=arch6\" rootflags=subvol=subvol_os1_fsroot rw" > /boot/loader/entries/arch.conf
+options root=\"LABEL=arch6\" rootfstype=btrfs rootflags=subvol=subvol_os1_fsroot rw" > /boot/loader/entries/arch.conf
 echo "title     Arch Linux 22a Fallback
 linux    /vmlinuz-linux
 initrd   /amd-ucode.img
 initrd   /initramfs-linux-fallback.img
-options root=\"LABEL=arch6\" rootflags=subvol=subvol_os1_fsroot rw" > /boot/loader/entries/arch-fallback.conf
+options root=\"LABEL=arch6\" rootfstype=btrfs rootflags=subvol=subvol_os1_fsroot rw" > /boot/loader/entries/arch-fallback.conf
 echo "default arch
 timeout 4
 console-mode max
@@ -29,6 +29,6 @@ bootctl --path=/boot update
 UNAME="sapien"
 useradd -m -G "wheel" -s /bin/zsh $UNAME
 passwd $UNAME
-# Prevent /var/log/journal from getting too large
+# Prevent /var/log/journal from getting large
 sed -i '0,/^#SystemMaxUse=/{s/^#SystemMaxUse=.*/SystemMaxUse=200M/}' /etc/systemd/journald.conf
 exit
