@@ -4,6 +4,7 @@ cd scripts
 loadkeys en
 timedatectl status
 read -p "Did you set the type of $1 to EFI System?" -n 1 -r
+echo #New line
 read -p "Format $1 and $2? " -n 1 -r
 echo #New line
 if [[ $REPLY =~ ^[Yy]$ ]] && [ -d "/sys/firmware/efi/efivars" ]; then
