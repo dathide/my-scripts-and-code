@@ -15,12 +15,12 @@ echo "title     Arch Linux 22a
 linux    /vmlinuz-linux
 initrd   /amd-ucode.img
 initrd   /initramfs-linux.img
-options root=\"LABEL=arch6\" rootfstype=btrfs rootflags=subvol=subvol_os1_fsroot rw" > /boot/loader/entries/arch.conf
+options root=\"LABEL=$3\" rootfstype=btrfs rootflags=subvol=subvol_${3}_fsroot rw nvidia_drm.modeset=1" > /boot/loader/entries/arch.conf
 echo "title     Arch Linux 22a Fallback
 linux    /vmlinuz-linux
 initrd   /amd-ucode.img
 initrd   /initramfs-linux-fallback.img
-options root=\"LABEL=arch6\" rootfstype=btrfs rootflags=subvol=subvol_os1_fsroot rw" > /boot/loader/entries/arch-fallback.conf
+options root=\"LABEL=$3\" rootfstype=btrfs rootflags=subvol=subvol_${3}_fsroot rw nvidia_drm.modeset=1" > /boot/loader/entries/arch-fallback.conf
 echo "default arch
 timeout 4
 console-mode max
