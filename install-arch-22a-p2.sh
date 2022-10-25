@@ -1,4 +1,5 @@
 #!/bin/bash
+UNAME="sapien"
 sed -i '0,/^#ParallelDownloads/{s/^#ParallelDownloads.*/ParallelDownloads = 3/}' /etc/pacman.conf
 ln -sf /usr/share/zoneinfo/America/Phoenix /etc/localtime
 hwclock --systohc
@@ -26,7 +27,6 @@ timeout 4
 console-mode max
 editor no" > /boot/loader/loader.conf
 bootctl --path=/boot update
-UNAME="sapien"
 useradd -m -G "wheel" -s /bin/zsh $UNAME
 passwd $UNAME
 # Prevent /var/log/journal from getting large
@@ -34,6 +34,6 @@ sed -i '0,/^#SystemMaxUse=/{s/^#SystemMaxUse=.*/SystemMaxUse=200M/}' /etc/system
 # Configure sudo
 sudo echo "sudo initialization for /etc/sudoers creation"
 sed -i '0,/^# %wheel ALL=(ALL:ALL) ALL/{s/^# %wheel ALL=(ALL:ALL) ALL.*/%wheel ALL=(ALL:ALL) ALL/}' /etc/sudoers
-# Install paru
+# Install paru-bin
 
 exit
