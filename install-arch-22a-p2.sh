@@ -31,4 +31,9 @@ useradd -m -G "wheel" -s /bin/zsh $UNAME
 passwd $UNAME
 # Prevent /var/log/journal from getting large
 sed -i '0,/^#SystemMaxUse=/{s/^#SystemMaxUse=.*/SystemMaxUse=200M/}' /etc/systemd/journald.conf
+# Configure sudo
+sudo echo "sudo initialization for /etc/sudoers creation"
+sed -i '0,/^# %wheel ALL=(ALL:ALL) ALL/{s/^# %wheel ALL=(ALL:ALL) ALL.*/%wheel ALL=(ALL:ALL) ALL/}' /etc/sudoers
+# Install paru
+
 exit
