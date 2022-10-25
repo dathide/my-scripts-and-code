@@ -9,7 +9,6 @@ echo "LANG=en_US.UTF-8" >> /etc/locale.conf
 echo "KEYMAP=us" >> /etc/vconsole.conf
 echo "arch" >> /etc/hostname
 systemctl enable NetworkManager
-systemctl enable sddm
 passwd
 bootctl --path=/boot install
 echo "title     Arch Linux 22a
