@@ -10,7 +10,7 @@ OS_SUBVOL="subvol_${OS_NAME}_fsroot"
 SSD_UUID="487b8741-9f8d-45bc-9f4e-0436d7f25e10"
 SUBV_PACMAN="subvol_var_cache_pacman_pkg"
 
-in_chroot () {
+func_for_chroot () {
     sed -i '0,/^#ParallelDownloads/{s/^#ParallelDownloads.*/ParallelDownloads = 3/}' /etc/pacman.conf
     ln -sf /usr/share/zoneinfo/America/Phoenix /etc/localtime
     hwclock --systohc
@@ -54,6 +54,8 @@ in_chroot () {
     makepkg -si
     exit # Leave arch-chroot
 }
+export -f func_for_chroot
+
 
 sed -i '0,/^#ParallelDownloads/{s/^#ParallelDownloads.*/ParallelDownloads = 3/}' /etc/pacman.conf
 cd scripts
@@ -87,7 +89,7 @@ if [[ $REPLY =~ ^[Yy]$ ]] && [ -d "/sys/firmware/efi/efivars" ] && [ ${#EFI1} -g
 
     # ssd1 main subvolume
     UUID=$SSD_UUID   /home/$UNAME/ssd1   btrfs   rw,noatime,compress-force=zstd:3,subvol=SubVol_SSD1   0 0" >> /mnt/etc/fstab
-    arch-chroot /mnt in_chroot
+    arch-chroot /mnt /bin/bash -c "func_for_chroot"
 fi
 # From https://wiki.archlinux.org/title/KDE#From_the_console
 # To start a wayland session: startplasma-wayland
