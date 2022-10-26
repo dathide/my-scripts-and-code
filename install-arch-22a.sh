@@ -1,20 +1,18 @@
 #!/bin/bash
 # After booting into Arch Linux iso using Ventoy, run these commands:
 # pacman -Sy git
-# git clone http://github.com/dathide/archstuff scripts
-# /bin/bash scripts/<this script> /dev/nvme0n1p# /dev/nvme0n1p#
+# git clone http://github.com/dathide/archstuff
+# /bin/bash archstuff/<this script> /dev/nvme0n1p# /dev/nvme0n1p#
 
-func_def_vars () {
-    UNAME="sapien"
-    OS_NAME="arch2"
-    OS_SUBVOL="subvol_${OS_NAME}_fsroot"
-    # This UUID and subvol should exist prior to running this script
-    SSD_UUID="487b8741-9f8d-45bc-9f4e-0436d7f25e10"
-    SUBV_PACMAN="subvol_var_cache_pacman_pkg"
-}
-export -f func_def_vars
+export UNAME="sapien"
+export OS_NAME="arch2"
+export OS_SUBVOL="subvol_${OS_NAME}_fsroot"
+# This UUID and subvol should exist prior to running this script
+export SSD_UUID="487b8741-9f8d-45bc-9f4e-0436d7f25e10"
+export SUBV_PACMAN="subvol_var_cache_pacman_pkg"
 
-func_in_chroot_2 () {
+# This function will run after arch-chrooting into the new system
+func_chroot () {
     sed -i '0,/^#ParallelDownloads/{s/^#ParallelDownloads.*/ParallelDownloads = 3/}' /etc/pacman.conf
     ln -sf /usr/share/zoneinfo/America/Phoenix /etc/localtime
     hwclock --systohc
@@ -26,20 +24,26 @@ func_in_chroot_2 () {
     systemctl enable NetworkManager
     passwd
     bootctl --path=/boot install
-    echo "title     Arch Linux 22a
-    linux    /vmlinuz-linux
-    initrd   /amd-ucode.img
-    initrd   /initramfs-linux.img
-    options root=\"LABEL=$OS_NAME\" rootfstype=btrfs rootflags=subvol=subvol_${OS_NAME}_fsroot rw nvidia_drm.modeset=1" > /boot/loader/entries/arch.conf
-    echo "title     Arch Linux 22a Fallback
-    linux    /vmlinuz-linux
-    initrd   /amd-ucode.img
-    initrd   /initramfs-linux-fallback.img
-    options root=\"LABEL=$OS_NAME\" rootfstype=btrfs rootflags=subvol=subvol_${OS_NAME}_fsroot rw nvidia_drm.modeset=1" > /boot/loader/entries/arch-fallback.conf
-    echo "default arch
+    arr_entry1=(
+    "title     Arch Linux 22a"
+    "linux     /vmlinuz-linux"
+    "initrd    /amd-ucode.img"
+    "initrd    /initramfs-linux.img"
+    "options   root=\"LABEL=$OS_NAME\" rootfstype=btrfs rootflags=subvol=subvol_${OS_NAME}_fsroot rw nvidia_drm.modeset=1")
+    printf "%s\n" "${arr_entry1[@]}" > /boot/loader/entries/arch.conf
+    arr_entry2=(
+    "title     Arch Linux 22a Fallback"
+    "linux     /vmlinuz-linux"
+    "initrd    /amd-ucode.img"
+    "initrd    /initramfs-linux-fallback.img"
+    "options   root=\"LABEL=$OS_NAME\" rootfstype=btrfs rootflags=subvol=subvol_${OS_NAME}_fsroot rw nvidia_drm.modeset=1")
+    printf "%s\n" "${arr_entry2[@]}" > /boot/loader/entries/arch-fallback.conf
+    arr_loader=(
+    "default arch
     timeout 4
     console-mode max
-    editor no" > /boot/loader/loader.conf
+    editor no")
+    printf "%s\n" "${arr_loader[@]}" > /boot/loader/loader.conf
     bootctl --path=/boot update
     useradd -m -G "wheel" -s /bin/zsh $UNAME
     mkdir -p /home/$UNAME/ssd1
@@ -51,23 +55,19 @@ func_in_chroot_2 () {
     sed -i '0,/^# %wheel ALL=(ALL:ALL) ALL/{s/^# %wheel ALL=(ALL:ALL) ALL.*/%wheel ALL=(ALL:ALL) ALL/}' /etc/sudoers
     # Install paru-bin
     pacman -S --needed base-devel
+    su $UNAME
     mkdir -p /home/$UNAME/.cache/paru/clone/
     cd /home/$UNAME/.cache/paru/clone/
     git clone https://aur.archlinux.org/paru-bin.git paru-bin
     cd paru-bin
     makepkg -si
+    exit # Stop running commands as $UNAME
     exit # Leave arch-chroot
 }
-export -f func_in_chroot_2
+export -f func_chroot
 
-func_in_chroot_1 () {
-    func_def_vars
-    func_in_chroot_2
-}
-export -f func_in_chroot_1
 
 sed -i '0,/^#ParallelDownloads/{s/^#ParallelDownloads.*/ParallelDownloads = 3/}' /etc/pacman.conf
-cd scripts
 loadkeys en
 timedatectl status
 # Line only exists if first partition is flagged as bootable
@@ -96,7 +96,7 @@ if [[ $REPLY =~ ^[Yy]$ ]] && [ -d "/sys/firmware/efi/efivars" ] && [ ${#EFI1} -g
     "# ssd1 main subvolume"
     "UUID=$SSD_UUID   /home/$UNAME/ssd1   btrfs   rw,noatime,compress-force=zstd:3,subvol=SubVol_SSD1   0 0")
     printf "%s\n" "${arr_fstab[@]}" >> /mnt/etc/fstab
-    arch-chroot /mnt /bin/bash -c "func_in_chroot_1"
+    arch-chroot /mnt /bin/bash -c "func_chroot"
 fi
 # From https://wiki.archlinux.org/title/KDE#From_the_console
 # To start a wayland session: startplasma-wayland
