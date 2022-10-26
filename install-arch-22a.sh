@@ -41,7 +41,7 @@ func_chroot () {
     arr_loader=(
     "default arch
     timeout 4
-    console-mode max
+    console-mode auto
     editor no")
     printf "%s\n" "${arr_loader[@]}" > /boot/loader/loader.conf
     bootctl --path=/boot update
