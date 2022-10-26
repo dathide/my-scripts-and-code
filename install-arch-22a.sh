@@ -50,13 +50,12 @@ func_chroot () {
     sudo echo "sudo initialization for /etc/sudoers creation"
     sed -i '0,/^# %wheel ALL=(ALL:ALL) ALL/{s/^# %wheel ALL=(ALL:ALL) ALL.*/%wheel ALL=(ALL:ALL) ALL/}' /etc/sudoers
     # Install paru-bin
-    pacman -S --needed base-devel
-    su $UNAME
-    mkdir -p /home/$UNAME/.cache/paru/clone/
+    pacman -S --needed base-devel git
+    sudo -u $UNAME mkdir -p /home/$UNAME/.cache/paru/clone/
     cd /home/$UNAME/.cache/paru/clone/
-    git clone https://aur.archlinux.org/paru-bin.git paru-bin
+    sudo -u $UNAME git clone https://aur.archlinux.org/paru-bin.git paru-bin
     cd paru-bin
-    makepkg -si
+    sudo -u $UNAME makepkg -si
     exit # Stop running commands as $UNAME
     exit # Leave arch-chroot
 }
