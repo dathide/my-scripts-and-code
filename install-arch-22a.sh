@@ -8,7 +8,7 @@ func_def_vars () {
     UNAME="sapien"
     OS_NAME="arch2"
     OS_SUBVOL="subvol_${OS_NAME}_fsroot"
-    # This UUID will have the following subvol created on it to store pacman's cache
+    # This UUID and subvol should exist prior to running this script
     SSD_UUID="487b8741-9f8d-45bc-9f4e-0436d7f25e10"
     SUBV_PACMAN="subvol_var_cache_pacman_pkg"
 }
