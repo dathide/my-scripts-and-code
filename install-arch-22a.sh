@@ -38,11 +38,7 @@ func_chroot () {
     "initrd    /initramfs-linux-fallback.img"
     "options   root=\"LABEL=$OS_NAME\" rootfstype=btrfs rootflags=subvol=subvol_${OS_NAME}_fsroot rw nvidia_drm.modeset=1")
     printf "%s\n" "${arr_entry2[@]}" > /boot/loader/entries/arch-fallback.conf
-    arr_loader=(
-    "default arch
-    timeout 4
-    console-mode auto
-    editor no")
+    arr_loader=("default arch" "timeout 4" "console-mode auto" "editor no")
     printf "%s\n" "${arr_loader[@]}" > /boot/loader/loader.conf
     bootctl --path=/boot update
     useradd -m -G "wheel" -s /bin/zsh $UNAME
