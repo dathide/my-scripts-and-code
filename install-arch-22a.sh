@@ -51,12 +51,9 @@ func_chroot () {
     sed -i '0,/^# %wheel ALL=(ALL:ALL) ALL/{s/^# %wheel ALL=(ALL:ALL) ALL.*/%wheel ALL=(ALL:ALL) ALL/}' /etc/sudoers
     # Install paru-bin
     pacman -S --needed base-devel git
-    sudo -u $UNAME mkdir -p /home/$UNAME/.cache/paru/clone/
-    cd /home/$UNAME/.cache/paru/clone/
-    sudo -u $UNAME git clone https://aur.archlinux.org/paru-bin.git paru-bin
-    cd paru-bin
+    sudo -u $UNAME git clone https://aur.archlinux.org/paru-bin.git /home/$UNAME/.cache/paru/clone/paru-bin
+    cd /home/$UNAME/.cache/paru/clone/paru-bin
     sudo -u $UNAME makepkg -si
-    exit # Stop running commands as $UNAME
     exit # Leave arch-chroot
 }
 export -f func_chroot
