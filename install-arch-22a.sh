@@ -14,6 +14,7 @@ export SUBV_PACMAN="subvol_var_cache_pacman_pkg"
 # This function will run after arch-chrooting into the new system
 func_chroot () {
     sed -i '0,/^#ParallelDownloads/{s/^#ParallelDownloads.*/ParallelDownloads = 3/}' /etc/pacman.conf
+    pacman -S --needed base-devel git btrfs-progs dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs kitty firefox man-db man-pages texinfo xorg-xwayland nvidia nvidia-utils nvidia-settings plasma plasma-wayland-session egl-wayland pipewire wireplumber pipewire-pulse ark dolphin dolphin-plugins dragon elisa ffmpegthumbs filelight gwenview kate kcalc kdegraphics-thumbnailers kdenlive kdesdk-kio kdesdk-thumbnailers kfind khelpcenter konsole ksystemlog okular spectacle
     ln -sf /usr/share/zoneinfo/America/Phoenix /etc/localtime
     hwclock --systohc
     echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
@@ -50,10 +51,8 @@ func_chroot () {
     sudo echo "sudo initialization for /etc/sudoers creation"
     sed -i '0,/^# %wheel ALL=(ALL:ALL) ALL/{s/^# %wheel ALL=(ALL:ALL) ALL.*/%wheel ALL=(ALL:ALL) ALL/}' /etc/sudoers
     # Install paru-bin
-    pacman -S --needed base-devel git
-    sudo -u $UNAME git clone https://aur.archlinux.org/paru-bin.git /home/$UNAME/.cache/paru/clone/paru-bin
-    cd /home/$UNAME/.cache/paru/clone/paru-bin
-    sudo -u $UNAME makepkg -si
+    D1="/home/$UNAME/.cache/paru/clone/paru-bin" ; sudo -u $UNAME git clone https://aur.archlinux.org/paru-bin.git "$D1"
+    cd "$D1" ; sudo -u $UNAME makepkg -si ; cd /root
     exit # Leave arch-chroot
 }
 export -f func_chroot
@@ -78,7 +77,7 @@ if [[ $REPLY =~ ^[Yy]$ ]] && [ -d "/sys/firmware/efi/efivars" ] && [ ${#EFI1} -g
     mount -m -o "subvol=$OS_SUBVOL,rw,noatime,compress-force=zstd:3,noautodefrag" $2 /mnt
     mount -m -o "subvol=$SUBV_PACMAN,rw,noatime,noautodefrag" "UUID=$SSD_UUID" /mnt/var/cache/pacman/pkg
     mount -m $1 /mnt/boot
-    pacstrap -K /mnt base linux linux-firmware sudo nano networkmanager amd-ucode btrfs-progs dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs vi kitty firefox man-db man-pages texinfo zsh xorg-xwayland nvidia nvidia-utils nvidia-settings plasma plasma-wayland-session egl-wayland pipewire wireplumber pipewire-pulse ark dolphin dolphin-plugins dragon elisa ffmpegthumbs filelight gwenview kate kcalc kdegraphics-thumbnailers kdenlive kdesdk-kio kdesdk-thumbnailers kfind khelpcenter konsole ksystemlog okular spectacle
+    pacstrap -K /mnt base linux linux-firmware amd-ucode sudo nano zsh networkmanager
     arr_fstab=("# fsroot LABEL=$OS_NAME $2"
     "UUID=$(blkid -o value -s UUID $2)   /   btrfs   rw,noatime,compress-force=zstd:3,subvol=$OS_SUBVOL   0 0"
     "# boot partition $1"
