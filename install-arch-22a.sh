@@ -4,12 +4,11 @@
 # git clone http://github.com/dathide/archstuff scripts
 # /bin/bash scripts/install-arch-22a-p1.sh /dev/nvme0n1p# /dev/nvme0n1p#
 UNAME="sapien"
-OS_NAME="arch7"
+OS_NAME="arch2"
 OS_SUBVOL="subvol_${OS_NAME}_fsroot"
 # This subvolume will be used to store pacman's package cache
 SSD_UUID="487b8741-9f8d-45bc-9f4e-0436d7f25e10"
 SUBV_PACMAN="subvol_var_cache_pacman_pkg"
-SUBV_PARU="subvol_home_user_.cache_paru_clone"
 
 in_chroot () {
     sed -i '0,/^#ParallelDownloads/{s/^#ParallelDownloads.*/ParallelDownloads = 3/}' /etc/pacman.conf
@@ -39,6 +38,7 @@ in_chroot () {
     editor no" > /boot/loader/loader.conf
     bootctl --path=/boot update
     useradd -m -G "wheel" -s /bin/zsh $UNAME
+    mkdir -p /home/$UNAME/ssd1
     passwd $UNAME
     # Prevent /var/log/journal from getting large
     sed -i '0,/^#SystemMaxUse=/{s/^#SystemMaxUse=.*/SystemMaxUse=200M/}' /etc/systemd/journald.conf
@@ -46,8 +46,13 @@ in_chroot () {
     sudo echo "sudo initialization for /etc/sudoers creation"
     sed -i '0,/^# %wheel ALL=(ALL:ALL) ALL/{s/^# %wheel ALL=(ALL:ALL) ALL.*/%wheel ALL=(ALL:ALL) ALL/}' /etc/sudoers
     # Install paru-bin
-
-    exit
+    pacman -S --needed base-devel
+    mkdir -p /home/$UNAME/.cache/paru/clone/
+    cd /home/$UNAME/.cache/paru/clone/
+    git clone https://aur.archlinux.org/paru-bin.git paru-bin
+    cd paru-bin
+    makepkg -si
+    exit # Leave arch-chroot
 }
 
 sed -i '0,/^#ParallelDownloads/{s/^#ParallelDownloads.*/ParallelDownloads = 3/}' /etc/pacman.conf
@@ -71,7 +76,17 @@ if [[ $REPLY =~ ^[Yy]$ ]] && [ -d "/sys/firmware/efi/efivars" ] && [ ${#EFI1} -g
     mount -m -o "subvol=$SUBV_PACMAN,rw,noatime,noautodefrag" "UUID=$SSD_UUID" /mnt/var/cache/pacman/pkg
     mount -m $1 /mnt/boot
     pacstrap -K /mnt base linux linux-firmware sudo nano networkmanager amd-ucode btrfs-progs dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs vi kitty firefox man-db man-pages texinfo zsh xorg-xwayland nvidia nvidia-utils nvidia-settings plasma plasma-wayland-session egl-wayland pipewire wireplumber pipewire-pulse ark dolphin dolphin-plugins dragon elisa ffmpegthumbs filelight gwenview kate kcalc kdegraphics-thumbnailers kdenlive kdesdk-kio kdesdk-thumbnailers kfind khelpcenter konsole ksystemlog okular spectacle
-    genfstab -U /mnt >> /mnt/etc/fstab
+    echo "# fsroot LABEL=$OS_NAME $2
+    UUID=$(blkid -o value -s UUID $2)   /   btrfs   rw,noatime,compress-force=zstd:3,subvol=$OS_SUBVOL   0 0
+
+    # boot partition $1
+    UUID=$(blkid -o value -s UUID $1)  /boot  vfat  rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=ascii,shortname=mixed,utf8,errors=remount-ro   0 2
+
+    # pacman cache
+    UUID=$SSD_UUID   /var/cache/pacman/pkg   btrfs   rw,noatime,subvol=$SUBV_PACMAN   0 0
+
+    # ssd1 main subvolume
+    UUID=$SSD_UUID   /home/$UNAME/ssd1   btrfs   rw,noatime,compress-force=zstd:3,subvol=SubVol_SSD1   0 0" >> /mnt/etc/fstab
     arch-chroot /mnt in_chroot
 fi
 # From https://wiki.archlinux.org/title/KDE#From_the_console
