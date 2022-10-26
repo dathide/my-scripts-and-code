@@ -2,7 +2,7 @@
 # After booting into Arch Linux iso using Ventoy, run these commands:
 # pacman -Sy git
 # git clone http://github.com/dathide/archstuff scripts
-# /bin/bash scripts/install-arch-22a-p1.sh /dev/nvme0n1p# /dev/nvme0n1p#
+# /bin/bash scripts/<this script> /dev/nvme0n1p# /dev/nvme0n1p#
 
 func_def_vars () {
     UNAME="sapien"
