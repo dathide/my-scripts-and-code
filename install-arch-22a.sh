@@ -43,7 +43,7 @@ func_chroot () {
     printf "%s\n" "${arr_loader[@]}" > /boot/loader/loader.conf
     bootctl --path=/boot update
     useradd -m -G "wheel" -s /bin/zsh $UNAME
-    mkdir -p /home/$UNAME/ssd1
+    sudo -u $UNAME mkdir -p /home/$UNAME/ssd1
     passwd $UNAME
     # Prevent /var/log/journal from getting large
     sed -i '0,/^#SystemMaxUse=/{s/^#SystemMaxUse=.*/SystemMaxUse=200M/}' /etc/systemd/journald.conf
@@ -69,7 +69,7 @@ func_chroot () {
     'lockPref("gfx.webrender.all", true);')
     printf "%s\n" "${arr_cfg[@]}" > /usr/lib/firefox/firefox.cfg
     # Download Firefox addons
-    P1="/usr/lib/firefox/distribution/extensions" ; mkdir -p $P1 ; cd $P1
+    P1="/usr/lib/firefox/distribution/extensions" ; mkdir -p "$P1" ; cd "$P1"
     arr_links=("$(lynx -dump -listonly https://addons.mozilla.org/en-US/firefox/addon/bitwarden-password-manager/ | grep '.xpi' | awk '{print $2}')"
     "$(lynx -dump -listonly https://addons.mozilla.org/en-US/firefox/addon/ublock-origin/ | grep '.xpi' | awk '{print $2}')")
     exit # Leave arch-chroot
