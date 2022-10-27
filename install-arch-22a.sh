@@ -68,8 +68,10 @@ func_chroot () {
     'lockPref("gfx.x11-egl.force-enabled", true);'
     'lockPref("gfx.webrender.all", true);')
     printf "%s\n" "${arr_cfg[@]}" > /usr/lib/firefox/firefox.cfg
-    # Download Firefox addons
+    ### Install Firefox addons https://support.mozilla.org/en-US/kb/deploying-firefox-with-extensions
     P1="/usr/lib/firefox/distribution/extensions" ; mkdir -p "$P1" ; cd "$P1"
+    # Bitwarden, uBlock Origin, Add custom search engine, BetterTTV, CanvasBlocker, Decentraleyes, Don't track me Google, HTTPS Everywhere, Image Search Options, Instagram Photo Plus, Return YouTube Dislike, Singlefile, SponsorBlock, Twitch Adblock, TWP - Translate Web Pages
+    # Grab direct download links from Mozilla webpages
     arr_links=("$(lynx -dump -listonly https://addons.mozilla.org/en-US/firefox/addon/bitwarden-password-manager/ | grep '.xpi' | awk '{print $2}')"
     "$(lynx -dump -listonly https://addons.mozilla.org/en-US/firefox/addon/ublock-origin/ | grep '.xpi' | awk '{print $2}')")
     exit # Leave arch-chroot
@@ -81,7 +83,7 @@ sed -i '0,/^#ParallelDownloads/{s/^#ParallelDownloads.*/ParallelDownloads = 3/}'
 loadkeys en
 timedatectl status
 # Line only exists if first partition is flagged as bootable
-EFI1=$( fdisk -lu | grep "EFI System" | grep "$1" )
+EFI1=$(fdisk -lu | grep "EFI System" | grep "$1")
 # Confirm with user so they can double check what partitions they are formatting
 read -p "Format $1 (boot) and $2? " -n 1 -r
 echo #New line
