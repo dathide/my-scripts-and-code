@@ -14,7 +14,7 @@ export SUBV_PACMAN="subvol_var_cache_pacman_pkg"
 # This function will run after arch-chrooting into the new system
 func_chroot () {
     sed -i '0,/^#ParallelDownloads/{s/^#ParallelDownloads.*/ParallelDownloads = 3/}' /etc/pacman.conf
-    pacman -S --needed base-devel git btrfs-progs dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs kitty firefox man-db man-pages texinfo xorg-xwayland nvidia nvidia-utils nvidia-settings plasma plasma-wayland-session egl-wayland pipewire wireplumber pipewire-pulse ark dolphin dolphin-plugins dragon elisa ffmpegthumbs filelight gwenview kate kcalc kdegraphics-thumbnailers kdenlive kdesdk-kio kdesdk-thumbnailers kfind khelpcenter konsole ksystemlog okular spectacle htop btop nvtop chromium lynx
+    pacman -S --needed base-devel git btrfs-progs dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs kitty firefox man-db man-pages texinfo xorg-xwayland nvidia nvidia-utils nvidia-settings plasma plasma-wayland-session egl-wayland pipewire wireplumber pipewire-pulse ark dolphin dolphin-plugins dragon elisa ffmpegthumbs filelight gwenview kate kcalc kdegraphics-thumbnailers kdenlive kdesdk-kio kdesdk-thumbnailers kfind khelpcenter konsole ksystemlog okular spectacle htop btop nvtop chromium lynx yt-dlp jre17-openjdk flatpak openvpn networkmanager-openvpn libreoffice-fresh lutris tealdeer
     ln -sf /usr/share/zoneinfo/America/Phoenix /etc/localtime
     hwclock --systohc
     echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
@@ -53,10 +53,12 @@ func_chroot () {
     # Install paru-bin
     P1="/home/$UNAME/.cache/paru/clone/paru-bin" ; sudo -u $UNAME git clone https://aur.archlinux.org/paru-bin.git "$P1"
     cd "$P1" ; sudo -u $UNAME makepkg -si ; cd /root
-    sudo -u $UNAME paru -S nvidia-vaapi-driver-git spotify
     # Set system-wide environment variables https://github.com/elFarto/nvidia-vaapi-driver
-    arr_envvars=("LIBVA_DRIVER_NAME=nvidia" "MOZ_DISABLE_RDD_SANDBOX=1" "EGL_PLATFORM=wayland" "MOZ_X11_EGL=1" "MOZ_ENABLE_WAYLAND=1")
+    arr_envvars=("LIBVA_DRIVER_NAME=nvidia" "MOZ_DISABLE_RDD_SANDBOX=1" "EGL_PLATFORM=wayland" "MOZ_X11_EGL=1" "MOZ_ENABLE_WAYLAND=1" 'MAKEFLAGS="-j12"' 'EDITOR=nano')
     printf "%s\n" "${arr_envvars[@]}" >> /etc/environment
+    source /etc/environment
+    sudo -u $UNAME paru -S --needed nvidia-vaapi-driver-git spotify prismlauncher-bin qbittorrent-enhanced-qt5 ttf-ms-fonts
+    flatpak install smplayer
     # System-wide firefox config https://support.mozilla.org/en-US/kb/customizing-firefox-using-autoconfig
     echo 'pref("general.config.filename", "firefox.cfg");' >> /usr/lib/firefox/defaults/pref/autoconfig.js
     echo 'pref("general.config.obscure_value", 0);' >> /usr/lib/firefox/defaults/pref/autoconfig.js
@@ -74,6 +76,8 @@ func_chroot () {
     # Grab direct download links from Mozilla webpages
     arr_links=("$(lynx -dump -listonly https://addons.mozilla.org/en-US/firefox/addon/bitwarden-password-manager/ | grep '.xpi' | awk '{print $2}')"
     "$(lynx -dump -listonly https://addons.mozilla.org/en-US/firefox/addon/ublock-origin/ | grep '.xpi' | awk '{print $2}')")
+    echo 'Enabled=false' >> /home/$UNAME/.config/kwalletrc # Disable kwallet and its annoying popups
+    tldr -u # Update tealdeer cache
     exit # Leave arch-chroot
 }
 export -f func_chroot
