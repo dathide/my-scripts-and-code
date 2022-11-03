@@ -10,11 +10,20 @@ export OS_SUBVOL="subvol_${OS_NAME}_fsroot"
 # This UUID and subvol should exist prior to running this script
 export SSD_UUID="487b8741-9f8d-45bc-9f4e-0436d7f25e10"
 export SUBV_PACMAN="subvol_var_cache_pacman_pkg"
+export PACSTRP='base linux linux-firmware amd-ucode sudo nano zsh networkmanager'
+export PKG_FS='btrfs-progs dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs'
+export PKG_NV='nvidia nvidia-utils lib32-nvidia-utils nvidia-settings vulkan-icd-loader lib32-vulkan-icd-loader'
+export PKG_MAN='base-devel git kitty firefox man-db man-pages texinfo xorg-xwayland plasma plasma-wayland-session egl-wayland pipewire wireplumber pipewire-pulse ark dolphin dolphin-plugins dragon elisa ffmpegthumbs filelight gwenview kate kcalc kdegraphics-thumbnailers kdenlive kdesdk-kio kdesdk-thumbnailers kfind khelpcenter konsole ksystemlog okular spectacle htop btop nvtop chromium lynx yt-dlp jre17-openjdk flatpak openvpn networkmanager-openvpn libreoffice-fresh lutris tealdeer'
+
 
 # This function will run after arch-chrooting into the new system
 func_chroot () {
-    sed -i '0,/^#ParallelDownloads/{s/^#ParallelDownloads.*/ParallelDownloads = 3/}' /etc/pacman.conf
-    pacman -S --needed base-devel git btrfs-progs dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs kitty firefox man-db man-pages texinfo xorg-xwayland nvidia nvidia-utils nvidia-settings plasma plasma-wayland-session egl-wayland pipewire wireplumber pipewire-pulse ark dolphin dolphin-plugins dragon elisa ffmpegthumbs filelight gwenview kate kcalc kdegraphics-thumbnailers kdenlive kdesdk-kio kdesdk-thumbnailers kfind khelpcenter konsole ksystemlog okular spectacle htop btop nvtop chromium lynx yt-dlp jre17-openjdk flatpak openvpn networkmanager-openvpn libreoffice-fresh lutris tealdeer
+    sed -i '/^#ParallelDownloads/!b;cParallelDownloads = 3' /etc/pacman.conf
+    sed -i '/^#Color/!b;cColor' /etc/pacman.conf # Replace line that starts with #Color with Color
+    sed -i '/^#\[multilib\]/!b;c\[multilib\]' /etc/pacman.conf
+    # Find line that starts with [multilib], replace next line with Include ...
+    sed -i '/^\[multilib\]/!b;n;cInclude = /etc/pacman.d/mirrorlist' /etc/pacman.conf
+    pacman -S --needed "$PKG_FS $PKG_NV $PKG_MAN"
     ln -sf /usr/share/zoneinfo/America/Phoenix /etc/localtime
     hwclock --systohc
     echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
@@ -83,7 +92,8 @@ func_chroot () {
 export -f func_chroot
 
 
-sed -i '0,/^#ParallelDownloads/{s/^#ParallelDownloads.*/ParallelDownloads = 3/}' /etc/pacman.conf
+sed -i '/^#ParallelDownloads/!b;cParallelDownloads = 3' /etc/pacman.conf
+sed -i '/^#Color/!b;cColor' /etc/pacman.conf
 loadkeys en
 timedatectl status
 # Line only exists if first partition is flagged as bootable
@@ -102,7 +112,7 @@ if [[ $REPLY =~ ^[Yy]$ ]] && [ -d "/sys/firmware/efi/efivars" ] && [ ${#EFI1} -g
     mount -m -o "subvol=$OS_SUBVOL,rw,noatime,compress-force=zstd:3,noautodefrag" $2 /mnt
     mount -m -o "subvol=$SUBV_PACMAN,rw,noatime,noautodefrag" "UUID=$SSD_UUID" /mnt/var/cache/pacman/pkg
     mount -m $1 /mnt/boot
-    pacstrap -K /mnt base linux linux-firmware amd-ucode sudo nano zsh networkmanager
+    pacstrap -K /mnt "$PACSTRP"
     arr_fstab=("# fsroot LABEL=$OS_NAME $2"
     "UUID=$(blkid -o value -s UUID $2)   /   btrfs   rw,noatime,compress-force=zstd:3,subvol=$OS_SUBVOL   0 0"
     "# boot partition $1"
