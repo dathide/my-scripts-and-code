@@ -23,6 +23,7 @@ func_chroot () {
     sed -i '/^#\[multilib\]/!b;c\[multilib\]' /etc/pacman.conf
     # Find line that starts with [multilib], replace next line with Include ...
     sed -i '/^\[multilib\]/!b;n;cInclude = /etc/pacman.d/mirrorlist' /etc/pacman.conf
+    pacman -Syu
     pacman -S --needed "$PKG_FS $PKG_NV $PKG_MAN"
     ln -sf /usr/share/zoneinfo/America/Phoenix /etc/localtime
     hwclock --systohc
