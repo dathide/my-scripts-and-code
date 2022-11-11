@@ -10,12 +10,12 @@ export OS_SUBVOL="subvol_${OS_NAME}_fsroot"
 # This UUID and subvol should exist prior to running this script
 export SSD_UUID="487b8741-9f8d-45bc-9f4e-0436d7f25e10"
 export SUBV_PACMAN="subvol_var_cache_pacman_pkg"
-export PACSTRP='base linux linux-firmware amd-ucode sudo nano zsh networkmanager'
+export PACSTRP='base linux linux-firmware amd-ucode sudo nano zsh networkmanager git'
 export PKG_FS='btrfs-progs dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs'
 # From https://github.com/lutris/docs/blob/master/InstallingDrivers.md https://www.gloriouseggroll.tv/how-to-get-out-of-wine-dependency-hell/
 export PKG_NVIDIA='nvidia nvidia-utils lib32-nvidia-utils nvidia-settings vulkan-icd-loader lib32-vulkan-icd-loader wine-staging winetricks giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo libxcomposite lib32-libxcomposite libxinerama lib32-libxinerama ncurses lib32-ncurses opencl-icd-loader lib32-opencl-icd-loader libxslt lib32-libxslt libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader cups samba dosbox'
 
-export PKG_MAN='base-devel git kitty firefox man-db man-pages texinfo xorg-xwayland plasma plasma-wayland-session egl-wayland pipewire wireplumber pipewire-pulse ark dolphin dolphin-plugins dragon elisa ffmpegthumbs filelight gwenview kate kcalc kdegraphics-thumbnailers kdenlive kdesdk-kio kdesdk-thumbnailers kfind khelpcenter konsole ksystemlog okular spectacle htop btop nvtop chromium lynx yt-dlp jre17-openjdk flatpak openvpn networkmanager-openvpn libreoffice-fresh lutris tealdeer obs-studio wqy-zenhei unrar kdeconnect sshfs docker docker-compose'
+export PKG_MAN='base-devel kitty firefox man-db man-pages texinfo xorg-xwayland plasma plasma-wayland-session egl-wayland pipewire wireplumber pipewire-pulse ark dolphin dolphin-plugins dragon elisa ffmpegthumbs filelight gwenview kate kcalc kdegraphics-thumbnailers kdenlive kdesdk-kio kdesdk-thumbnailers kfind khelpcenter konsole ksystemlog okular spectacle htop btop nvtop chromium lynx yt-dlp jre17-openjdk flatpak openvpn networkmanager-openvpn libreoffice-fresh lutris tealdeer obs-studio wqy-zenhei unrar kdeconnect sshfs docker docker-compose'
 
 export AUR='nvidia-vaapi-driver-git spotify prismlauncher-bin qbittorrent-enhanced-qt5 ttf-ms-fonts protonup-qt-bin nvidia-container-toolkit nerd-fonts-complete'
 
@@ -36,15 +36,7 @@ func_chroot () {
     sed -i '/^#\[multilib\]/!b;c\[multilib\]' /etc/pacman.conf
     # Find line that starts with [multilib], replace next line with Include ...
     sed -i '/^\[multilib\]/!b;n;cInclude = /etc/pacman.d/mirrorlist' /etc/pacman.conf
-    pacman -Syu --needed "git base-devel"
-    # Install paru-bin
-    P1="/home/$UNAME/.cache/paru/clone/paru-bin" ; sudo -u $UNAME git clone https://aur.archlinux.org/paru-bin.git "$P1"
-    cd "$P1" ; sudo -u $UNAME makepkg -si ; cd /root
-    # Install packages
-    sudo -u $UNAME paru -S --needed "$PKG_FS $PKG_NVIDIA $PKG_MAN $AUR"
     ln -sf /usr/share/zoneinfo/America/Phoenix /etc/localtime
-    systemctl enable NetworkManager
-    systemctl enable docker
     bootctl --path=/boot install
     arr_entry1=(
     "title     Arch Linux 22a"
@@ -66,11 +58,18 @@ func_chroot () {
     useradd -m -G "wheel" -s /bin/zsh $UNAME
     sudo -u $UNAME mkdir -p /home/$UNAME/ssd1
     passwd $UNAME
+    # Configure sudo
+    sudo -u $UNAME echo "sudo initialization for /etc/sudoers creation"
+    sed -i '0,/^# %wheel ALL=(ALL:ALL) ALL/{s/^# %wheel ALL=(ALL:ALL) ALL.*/%wheel ALL=(ALL:ALL) ALL/}' /etc/sudoers
+    # Install paru-bin
+    P1="/home/$UNAME/.cache/paru/clone/paru-bin" ; sudo -u $UNAME git clone https://aur.archlinux.org/paru-bin.git "$P1"
+    cd "$P1" ; sudo -u $UNAME makepkg -si ; cd /root
+    # Install packages
+    sudo -u $UNAME paru -S --needed "$PKG_FS $PKG_NVIDIA $PKG_MAN $AUR"
+    systemctl enable NetworkManager
+    systemctl enable docker
     # Prevent /var/log/journal from getting large
     sed -i '0,/^#SystemMaxUse=/{s/^#SystemMaxUse=.*/SystemMaxUse=200M/}' /etc/systemd/journald.conf
-    # Configure sudo
-    sudo echo "sudo initialization for /etc/sudoers creation"
-    sed -i '0,/^# %wheel ALL=(ALL:ALL) ALL/{s/^# %wheel ALL=(ALL:ALL) ALL.*/%wheel ALL=(ALL:ALL) ALL/}' /etc/sudoers
     # Set system-wide environment variables https://github.com/elFarto/nvidia-vaapi-driver
     arr_envvars=("LIBVA_DRIVER_NAME=nvidia" "MOZ_DISABLE_RDD_SANDBOX=1" "EGL_PLATFORM=wayland" "MOZ_X11_EGL=1" "MOZ_ENABLE_WAYLAND=1" 'MAKEFLAGS="-j12"' 'EDITOR=nano')
     printf "%s\n" "${arr_envvars[@]}" >> /etc/environment
@@ -86,7 +85,9 @@ func_chroot () {
     'lockPref("media.rdd-ffmpeg.enabled", true);'
     'lockPref("media.av1.enabled", true);'
     'lockPref("gfx.x11-egl.force-enabled", true);'
-    'lockPref("gfx.webrender.all", true);')
+    'lockPref("gfx.webrender.all", true);'
+    'lockPref("widget.use-xdg-desktop-portal.file-picker", 1);'
+    'lockPref("widget.use-xdg-desktop-portal.mime-handler", 1);')
     printf "%s\n" "${arr_cfg[@]}" > /usr/lib/firefox/firefox.cfg
     ### Install Firefox addons https://support.mozilla.org/en-US/kb/deploying-firefox-with-extensions
     P1="/usr/lib/firefox/distribution/extensions" ; mkdir -p "$P1" ; cd "$P1"
