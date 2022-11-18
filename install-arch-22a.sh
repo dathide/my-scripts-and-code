@@ -15,9 +15,9 @@ export PKG_FS='btrfs-progs dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils n
 # From https://github.com/lutris/docs/blob/master/InstallingDrivers.md https://www.gloriouseggroll.tv/how-to-get-out-of-wine-dependency-hell/
 export PKG_NVIDIA='nvidia nvidia-utils lib32-nvidia-utils nvidia-settings vulkan-icd-loader lib32-vulkan-icd-loader wine-staging winetricks giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo libxcomposite lib32-libxcomposite libxinerama lib32-libxinerama ncurses lib32-ncurses opencl-icd-loader lib32-opencl-icd-loader libxslt lib32-libxslt libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader cups samba dosbox'
 
-export PKG_MAN='base-devel kitty firefox man-db man-pages texinfo xorg-xwayland plasma plasma-wayland-session egl-wayland pipewire wireplumber pipewire-pulse ark dolphin dolphin-plugins dragon elisa ffmpegthumbs filelight gwenview kate kcalc kdegraphics-thumbnailers kdenlive kdesdk-kio kdesdk-thumbnailers kfind khelpcenter konsole ksystemlog okular spectacle htop btop nvtop chromium lynx yt-dlp jre17-openjdk flatpak openvpn networkmanager-openvpn libreoffice-fresh lutris tealdeer obs-studio wqy-zenhei unrar kdeconnect sshfs docker docker-compose'
+export PKG_MAN='base-devel kitty firefox man-db man-pages texinfo xorg-xwayland plasma plasma-wayland-session egl-wayland pipewire wireplumber pipewire-pulse ark dolphin dolphin-plugins dragon elisa ffmpegthumbs filelight gwenview kate kcalc kdegraphics-thumbnailers kdenlive kdesdk-kio kdesdk-thumbnailers kfind khelpcenter konsole ksystemlog okular spectacle htop btop nvtop chromium lynx yt-dlp jre17-openjdk flatpak openvpn networkmanager-openvpn libreoffice-fresh lutris tealdeer obs-studio wqy-zenhei unrar kdeconnect sshfs docker docker-compose rustup qt6-wayland'
 
-export AUR='nvidia-vaapi-driver-git spotify prismlauncher-bin qbittorrent-enhanced-qt5 ttf-ms-fonts protonup-qt-bin nvidia-container-toolkit nerd-fonts-complete'
+export AUR='nvidia-vaapi-driver-git spotify prismlauncher-bin qbittorrent-enhanced-qt5 ttf-ms-fonts protonup-qt-bin nvidia-container-toolkit nerd-fonts-complete glfw-wayland-minecraft'
 
 export FLATPAK='smplayer'
 
@@ -100,6 +100,7 @@ func_chroot () {
     # Configure the kitty terminal
     kitty=('font_family Iosevka Term' 'font_size 13.0')
     printf "%s\n" "${kitty[@]}" >> "/home/$UNAME/.config/kitty/kitty.conf"
+    rustup toolchain install stable
     exit # Leave arch-chroot
 }
 export -f func_chroot
