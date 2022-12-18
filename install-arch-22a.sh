@@ -15,11 +15,9 @@ export PKG_FS='btrfs-progs dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils n
 # From https://github.com/lutris/docs/blob/master/InstallingDrivers.md https://www.gloriouseggroll.tv/how-to-get-out-of-wine-dependency-hell/
 export PKG_NVIDIA='nvidia nvidia-utils lib32-nvidia-utils nvidia-settings vulkan-icd-loader lib32-vulkan-icd-loader wine-staging winetricks giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo libxcomposite lib32-libxcomposite libxinerama lib32-libxinerama ncurses lib32-ncurses opencl-icd-loader lib32-opencl-icd-loader libxslt lib32-libxslt libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader cups samba dosbox'
 
-export PKG_MAN='base-devel kitty firefox man-db man-pages texinfo xorg-xwayland plasma plasma-wayland-session egl-wayland pipewire wireplumber pipewire-pulse ark dolphin dolphin-plugins dragon elisa ffmpegthumbs filelight gwenview kate kcalc kdegraphics-thumbnailers kdenlive kdesdk-kio kdesdk-thumbnailers kfind khelpcenter konsole ksystemlog okular spectacle htop btop nvtop chromium lynx yt-dlp jre17-openjdk flatpak openvpn networkmanager-openvpn libreoffice-fresh lutris tealdeer obs-studio wqy-zenhei unrar kdeconnect sshfs docker docker-compose rustup qt6-wayland helvum libadwaita cuda reflector gimp qt5-imageformats libjxl nomacs avidemux-qt'
+export PKG_MAN='base-devel kitty firefox man-db man-pages texinfo xorg xorg-xwayland plasma plasma-wayland-session egl-wayland sddm sddm-kcm pipewire wireplumber pipewire-pulse ark dolphin dolphin-plugins dragon elisa ffmpegthumbs filelight gwenview kate kcalc kdegraphics-thumbnailers kdenlive kdesdk-kio kdesdk-thumbnailers kfind khelpcenter konsole ksystemlog okular spectacle htop btop nvtop chromium lynx yt-dlp jre17-openjdk flatpak openvpn networkmanager-openvpn libreoffice-fresh lutris tealdeer obs-studio wqy-zenhei unrar kdeconnect sshfs docker docker-compose rustup qt6-wayland helvum libadwaita cuda reflector gimp qt5-imageformats libjxl nomacs avidemux-qt github-cli haruna intellij-idea-community-edition rsync scons kimageformats smplayer compsize blender libdecor desmume virtualbox virtualbox-host-modules-arch virtualbox-guest-utils virtualbox-guest-iso bash-language-server shellcheck python-lsp-server'
 
-export AUR='nvidia-vaapi-driver-git spotify prismlauncher-bin qbittorrent-enhanced-qt5 ttf-ms-fonts protonup-qt-bin nvidia-container-toolkit nerd-fonts-complete glfw-wayland-minecraft'
-
-export FLATPAK='smplayer'
+export AUR='nvidia-vaapi-driver-git spotify prismlauncher-bin qbittorrent-enhanced-qt5 ttf-ms-fonts protonup-qt-bin nvidia-container-toolkit nerd-fonts-complete glfw-wayland-minecraft antimicrox'
 
 # This function will run after arch-chrooting into the new system
 func_chroot () {
@@ -56,6 +54,8 @@ func_chroot () {
     printf "%s\n" "${arr_loader[@]}" > /boot/loader/loader.conf
     bootctl --path=/boot update
     useradd -m -G "wheel" -s /bin/zsh $UNAME
+    gpasswd -a $UNAME "vboxusers"
+    gpasswd -a $UNAME "vboxsf"
     sudo -u $UNAME mkdir -p /home/$UNAME/ssd1
     passwd $UNAME
     # Configure sudo
@@ -66,16 +66,14 @@ func_chroot () {
     cd "$P1" ; sudo -u $UNAME makepkg -si ; cd /root
     # Install packages
     sudo -u $UNAME paru -S --needed "$PKG_FS $PKG_NVIDIA $PKG_MAN $AUR"
-    systemctl enable NetworkManager
-    systemctl enable docker
+    systemctl enable NetworkManager docker sddm
     # Prevent /var/log/journal from getting large
     sed -i '0,/^#SystemMaxUse=/{s/^#SystemMaxUse=.*/SystemMaxUse=200M/}' /etc/systemd/journald.conf
     # Set system-wide environment variables https://github.com/elFarto/nvidia-vaapi-driver
-    arr_envvars=("LIBVA_DRIVER_NAME=nvidia" "MOZ_DISABLE_RDD_SANDBOX=1" "EGL_PLATFORM=wayland" "MOZ_X11_EGL=1" "MOZ_ENABLE_WAYLAND=1" 'MAKEFLAGS="-j12"' 'EDITOR=nano')
+    # For Firefox on Wayland: "EGL_PLATFORM=wayland" "MOZ_ENABLE_WAYLAND=1"
+    arr_envvars=("LIBVA_DRIVER_NAME=nvidia" "MOZ_DISABLE_RDD_SANDBOX=1" "MOZ_X11_EGL=1" 'MAKEFLAGS="-j12"' 'EDITOR=nano')
     printf "%s\n" "${arr_envvars[@]}" >> /etc/environment
     source /etc/environment
-    #flatpak --user remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-    flatpak --user install "$FLATPAK"
     # System-wide firefox config https://support.mozilla.org/en-US/kb/customizing-firefox-using-autoconfig
     echo 'pref("general.config.filename", "firefox.cfg");' >> /usr/lib/firefox/defaults/pref/autoconfig.js
     echo 'pref("general.config.obscure_value", 0);' >> /usr/lib/firefox/defaults/pref/autoconfig.js
@@ -98,9 +96,10 @@ func_chroot () {
     echo 'Enabled=false' >> /home/$UNAME/.config/kwalletrc # Disable kwallet and its annoying popups
     tldr -u # Update tealdeer cache
     # Configure the kitty terminal
-    kitty=('font_family Iosevka Term' 'font_size 13.0')
+    kitty=('font_family ProFontIIx Nerd Font Mono' 'font_size 12.0')
     printf "%s\n" "${kitty[@]}" >> "/home/$UNAME/.config/kitty/kitty.conf"
     rustup toolchain install stable
+    # Configure Dolphin -> Context Menu -> Git
     exit # Leave arch-chroot
 }
 export -f func_chroot
