@@ -15,9 +15,9 @@ export PKG_FS='btrfs-progs dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils n
 # From https://github.com/lutris/docs/blob/master/InstallingDrivers.md https://www.gloriouseggroll.tv/how-to-get-out-of-wine-dependency-hell/
 export PKG_NVIDIA='nvidia nvidia-utils lib32-nvidia-utils nvidia-settings vulkan-icd-loader lib32-vulkan-icd-loader wine-staging winetricks giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo libxcomposite lib32-libxcomposite libxinerama lib32-libxinerama ncurses lib32-ncurses opencl-icd-loader lib32-opencl-icd-loader libxslt lib32-libxslt libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader cups samba dosbox'
 
-export PKG_MAN='base-devel kitty firefox man-db man-pages texinfo xorg xorg-xwayland plasma plasma-wayland-session egl-wayland sddm sddm-kcm pipewire wireplumber pipewire-pulse ark dolphin dolphin-plugins dragon elisa ffmpegthumbs filelight gwenview kate kcalc kdegraphics-thumbnailers kdenlive kdesdk-kio kdesdk-thumbnailers kfind khelpcenter konsole ksystemlog okular spectacle htop btop nvtop chromium lynx yt-dlp jre17-openjdk flatpak openvpn networkmanager-openvpn libreoffice-fresh lutris tealdeer obs-studio wqy-zenhei unrar kdeconnect sshfs docker docker-compose rustup qt6-wayland helvum libadwaita cuda reflector gimp qt5-imageformats libjxl nomacs avidemux-qt github-cli haruna intellij-idea-community-edition rsync kimageformats smplayer compsize blender libdecor desmume virtualbox virtualbox-host-modules-arch virtualbox-guest-utils virtualbox-guest-iso bash-language-server shellcheck python-lsp-server zip wget bluez bluez-utils pueue fontforge'
+export PKG_MAN='base-devel kitty firefox man-db man-pages texinfo xorg xorg-xwayland plasma plasma-wayland-session egl-wayland sddm sddm-kcm pipewire wireplumber pipewire-pulse ark dolphin dolphin-plugins dragon elisa ffmpegthumbs filelight gwenview kate kcalc kdegraphics-thumbnailers kdenlive kdesdk-kio kdesdk-thumbnailers kfind khelpcenter konsole ksystemlog okular spectacle htop btop nvtop chromium lynx yt-dlp jre17-openjdk flatpak openvpn networkmanager-openvpn libreoffice-fresh lutris tealdeer obs-studio wqy-zenhei unrar kdeconnect sshfs docker docker-compose rustup qt6-wayland helvum libadwaita cuda reflector gimp qt5-imageformats libjxl nomacs avidemux-qt github-cli haruna intellij-idea-community-edition rsync kimageformats smplayer compsize blender libdecor desmume virtualbox virtualbox-host-modules-arch virtualbox-guest-utils virtualbox-guest-iso bash-language-server shellcheck python-lsp-server zip wget bluez bluez-utils pueue fontforge imwheel print-manager nss-mdns krita'
 
-export AUR='nvidia-vaapi-driver-git spotify prismlauncher-bin qbittorrent-enhanced-qt5 protonup-qt-bin nvidia-container-toolkit glfw-wayland-minecraft antimicrox pyston qalculate-qt5 aom-git'
+export AUR='nvidia-vaapi-driver-git spotify prismlauncher-bin qbittorrent-enhanced-qt5 protonup-qt-bin nvidia-container-toolkit glfw-wayland-minecraft antimicrox pyston qalculate-qt5 aom-git discord_arch_electron betterdiscordctl mpv-full'
 
 # This function will run after arch-chrooting into the new system
 func_chroot () {
@@ -64,7 +64,7 @@ func_chroot () {
     cd "$P1" ; sudo -u $UNAME makepkg -si ; cd /root
     # Install packages
     sudo -u $UNAME paru -S --needed "$PKG_FS $PKG_NVIDIA $PKG_MAN $AUR"
-    systemctl enable NetworkManager docker sddm bluetooth
+    systemctl enable NetworkManager docker sddm bluetooth avahi-daemon
     sudo -u $UNAME systemctl --user enable pueued
     # Prevent /var/log/journal from getting large
     sed -i '0,/^#SystemMaxUse=/{s/^#SystemMaxUse=.*/SystemMaxUse=200M/}' /etc/systemd/journald.conf
@@ -81,21 +81,23 @@ func_chroot () {
     'lockPref("//media.ffmpeg.vaapi.enabled", true);'
     'lockPref("//media.rdd-ffmpeg.enabled", true);'
     'lockPref("//media.av1.enabled", true);'
-    'lockPref("//gfx.x11-egl.force-enabled", true);'
+    'lockPref("gfx.x11-egl.force-enabled", true);'
     'lockPref("gfx.webrender.all", true);'
+    'lockPref("gfx.webrender.program-binary-disk", true);'
     'lockPref("widget.use-xdg-desktop-portal.file-picker", 1);'
-    'lockPref("widget.use-xdg-desktop-portal.mime-handler", 1);')
+    'lockPref("widget.use-xdg-desktop-portal.mime-handler", 1);'
+    'lockPref("layout.frame_rate", 144);')
     printf "%s\n" "${arr_cfg[@]}" > /usr/lib/firefox/firefox.cfg
     ### Install Firefox addons https://support.mozilla.org/en-US/kb/deploying-firefox-with-extensions
     P1="/usr/lib/firefox/distribution/extensions" ; mkdir -p "$P1" ; cd "$P1"
-    # Bitwarden, uBlock Origin, Add custom search engine, BetterTTV, CanvasBlocker, Decentraleyes, Don't track me Google, HTTPS Everywhere, Image Search Options, Instagram Photo Plus, Return YouTube Dislike, Singlefile, SponsorBlock, TWP - Translate Web Pages, Alternate Player for Twitch.tv
+    # Bitwarden, uBlock Origin, Add custom search engine, BetterTTV, CanvasBlocker, Decentraleyes, Don't track me Google, HTTPS Everywhere, Image Search Options, Instagram Photo Plus, Return YouTube Dislike, Singlefile, SponsorBlock, TWP - Translate Web Pages, Alternate Player for Twitch.tv, Toggle Fonts
     # Grab direct download links from Mozilla webpages
     arr_links=("$(lynx -dump -listonly https://addons.mozilla.org/en-US/firefox/addon/bitwarden-password-manager/ | grep '.xpi' | awk '{print $2}')"
     "$(lynx -dump -listonly https://addons.mozilla.org/en-US/firefox/addon/ublock-origin/ | grep '.xpi' | awk '{print $2}')")
     echo 'Enabled=false' >> /home/$UNAME/.config/kwalletrc # Disable kwallet and its annoying popups
     tldr -u # Update tealdeer cache
     # Configure the kitty terminal
-    kitty=('font_family ProFontIIx Nerd Font Mono' 'font_size 12.0')
+    kitty=('font_family Source Code Pro' 'font_size 14.0')
     printf "%s\n" "${kitty[@]}" >> "/home/$UNAME/.config/kitty/kitty.conf"
     rustup toolchain install stable
     # Create a login script
@@ -105,6 +107,10 @@ func_chroot () {
     chmod +x "$P3"
     # Install scons through pyston to use building Godot
     pyston -m pip install scons
+    betterdiscordctl install
+    # Set up printing over the network
+    sed -i '/^hosts:/!b;chosts: mymachines mdns_minimal [NOTFOUND=return] resolve [!UNAVAIL=return] files myhostname dns' /etc/nsswitch.conf
+
     # Configure Dolphin -> Context Menu -> Git
     exit # Leave arch-chroot
 }
