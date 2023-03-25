@@ -38,20 +38,27 @@ func_chroot () {
     ln -sf /usr/share/zoneinfo/America/Phoenix /etc/localtime
     bootctl --path=/boot install
     arr_entry1=(
+    "title     Arch Linux 22a Zen"
+    "linux     /vmlinuz-linux-zen"
+    "initrd    /amd-ucode.img"
+    "initrd    /initramfs-linux-zen.img"
+    "options   root=\"LABEL=$OS_NAME\" rootfstype=btrfs rootflags=subvol=subvol_${OS_NAME}_fsroot rw nvidia_drm.modeset=1")
+    printf "%s\n" "${arr_entry1[@]}" > /boot/loader/entries/arch-zen.conf
+    arr_entry2=(
     "title     Arch Linux 22a"
     "linux     /vmlinuz-linux"
     "initrd    /amd-ucode.img"
     "initrd    /initramfs-linux.img"
     "options   root=\"LABEL=$OS_NAME\" rootfstype=btrfs rootflags=subvol=subvol_${OS_NAME}_fsroot rw nvidia_drm.modeset=1")
-    printf "%s\n" "${arr_entry1[@]}" > /boot/loader/entries/arch.conf
-    arr_entry2=(
+    printf "%s\n" "${arr_entry2[@]}" > /boot/loader/entries/arch.conf
+    arr_entry3=(
     "title     Arch Linux 22a Fallback"
     "linux     /vmlinuz-linux"
     "initrd    /amd-ucode.img"
     "initrd    /initramfs-linux-fallback.img"
     "options   root=\"LABEL=$OS_NAME\" rootfstype=btrfs rootflags=subvol=subvol_${OS_NAME}_fsroot rw nvidia_drm.modeset=1")
-    printf "%s\n" "${arr_entry2[@]}" > /boot/loader/entries/arch-fallback.conf
-    arr_loader=("default arch" "timeout 4" "console-mode auto" "editor no")
+    printf "%s\n" "${arr_entry3[@]}" > /boot/loader/entries/arch-fallback.conf
+    arr_loader=("default arch-zen" "timeout 4" "console-mode auto" "editor no")
     printf "%s\n" "${arr_loader[@]}" > /boot/loader/loader.conf
     bootctl --path=/boot update
     useradd -m -G "wheel,vboxusers,vboxsf" -s /bin/zsh $UNAME
