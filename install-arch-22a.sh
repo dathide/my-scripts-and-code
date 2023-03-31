@@ -11,14 +11,16 @@ export OS_SUBVOL="subvol_${OS_NAME}_fsroot"
 export SSD_UUID="487b8741-9f8d-45bc-9f4e-0436d7f25e10"
 export SSD2_UUID='33e4badb-e8d5-42f8-ae8b-854cc64a097d'
 export SUBV_PACMAN="subvol_var_cache_pacman_pkg"
-export PACSTRP='base linux linux-firmware linux-zen linux-zen-headers amd-ucode sudo nano zsh networkmanager git'
+export PACSTRP='base linux linux-firmware linux-headers linux-zen linux-zen-headers amd-ucode sudo nano zsh networkmanager git'
 export PKG_FS='btrfs-progs dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs'
 # From https://github.com/lutris/docs/blob/master/InstallingDrivers.md https://www.gloriouseggroll.tv/how-to-get-out-of-wine-dependency-hell/
-export PKG_NVIDIA='nvidia nvidia-utils lib32-nvidia-utils nvidia-settings vulkan-icd-loader lib32-vulkan-icd-loader wine-staging winetricks giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo libxcomposite lib32-libxcomposite libxinerama lib32-libxinerama ncurses lib32-ncurses opencl-icd-loader lib32-opencl-icd-loader libxslt lib32-libxslt libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader cups samba dosbox'
+export PKG_NVIDIA='nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings vulkan-icd-loader lib32-vulkan-icd-loader wine-staging winetricks giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo libxcomposite lib32-libxcomposite libxinerama lib32-libxinerama ncurses lib32-ncurses opencl-icd-loader lib32-opencl-icd-loader libxslt lib32-libxslt libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader cups samba dosbox'
 
 export PKG_MAN='base-devel kitty firefox man-db man-pages texinfo xorg xorg-xwayland plasma plasma-wayland-session egl-wayland sddm sddm-kcm pipewire wireplumber pipewire-pulse ark dolphin dolphin-plugins dragon elisa ffmpegthumbs filelight gwenview kate kcalc kdegraphics-thumbnailers kdenlive kdesdk-kio kdesdk-thumbnailers kfind khelpcenter konsole ksystemlog okular spectacle htop btop nvtop chromium lynx yt-dlp jre17-openjdk jre8-openjdk flatpak openvpn networkmanager-openvpn libreoffice-fresh lutris tealdeer obs-studio wqy-zenhei unrar kdeconnect sshfs docker docker-compose rustup qt6-wayland helvum libadwaita cuda reflector gimp qt5-imageformats libjxl nomacs avidemux-qt github-cli haruna intellij-idea-community-edition rsync kimageformats smplayer compsize blender libdecor desmume virtualbox virtualbox-host-modules-arch virtualbox-guest-utils virtualbox-guest-iso bash-language-server shellcheck python-lsp-server zip wget bluez bluez-utils pueue fontforge imwheel print-manager nss-mdns krita vkd3d lib32-vkd3d qpwgraph spotify-launcher steam-native-runtime torbrowser-launcher'
 
-export AUR='nvidia-vaapi-driver-git prismlauncher-bin qbittorrent-enhanced-qt5 protonup-qt-bin nvidia-container-toolkit glfw-wayland-minecraft antimicrox sc-controller pyston qalculate-qt5 discord_arch_electron betterdiscordctl mpv-full pacdep google-earth-pro downgrade'
+export AUR='nvidia-vaapi-driver-git prismlauncher-bin qbittorrent-enhanced-qt5 protonup-qt-bin nvidia-container-toolkit glfw-wayland-minecraft antimicrox sc-controller pyston qalculate-qt5 discord_arch_electron betterdiscordctl mpv-full pacdep google-earth-pro downgrade peazip-qt-bin'
+
+export OTHER_REPOS='ck-generic-v3'
 
 # This function will run after arch-chrooting into the new system
 func_chroot () {
@@ -58,7 +60,14 @@ func_chroot () {
     "initrd    /initramfs-linux-fallback.img"
     "options   root=\"LABEL=$OS_NAME\" rootfstype=btrfs rootflags=subvol=subvol_${OS_NAME}_fsroot rw nvidia_drm.modeset=1")
     printf "%s\n" "${arr_entry3[@]}" > /boot/loader/entries/arch-fallback.conf
-    arr_loader=("default arch-zen" "timeout 4" "console-mode auto" "editor no")
+    arr_entry4=(
+    "title     Arch Linux 22a ck-generic-v3"
+    "linux     /vmlinuz-linux-ck-generic-v3"
+    "initrd    /amd-ucode.img"
+    "initrd    /initramfs-linux-ck-generic-v3.img"
+    "options   root=\"LABEL=$OS_NAME\" rootfstype=btrfs rootflags=subvol=subvol_${OS_NAME}_fsroot rw nvidia_drm.modeset=1")
+    printf "%s\n" "${arr_entry4[@]}" > /boot/loader/entries/ck-generic-v3.conf
+    arr_loader=("default ck-generic-v3.conf" "timeout 4" "console-mode auto" "editor no")
     printf "%s\n" "${arr_loader[@]}" > /boot/loader/loader.conf
     bootctl --path=/boot update
     useradd -m -G "wheel,vboxusers,vboxsf" -s /bin/zsh $UNAME
@@ -71,7 +80,7 @@ func_chroot () {
     P1="/home/$UNAME/.cache/paru/clone/paru-bin" ; sudo -u $UNAME git clone https://aur.archlinux.org/paru-bin.git "$P1"
     cd "$P1" ; sudo -u $UNAME makepkg -si ; cd /root
     # Install packages
-    sudo -u $UNAME paru -S --needed "$PKG_FS $PKG_NVIDIA $PKG_MAN $AUR"
+    sudo -u $UNAME paru -S --needed "$PKG_FS $PKG_NVIDIA $PKG_MAN $AUR $OTHER_REPOS"
     systemctl enable NetworkManager docker sddm bluetooth avahi-daemon cups fstrim.timer
     sudo -u $UNAME systemctl --user enable pueued
     # Prevent /var/log/journal from getting large
