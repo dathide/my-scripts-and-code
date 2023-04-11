@@ -20,6 +20,7 @@ encoded1 = base64.b64encode(open("/home/sapien/Downloads/pose_2023_04_10_17_44_2
 encoded2 = str(encoded1, encoding='utf-8')
 encoded3 = 'data:image/png;base64,' + encoded2
 
+# controlnet args needs a separate {} for each enabled controlnet
 txt2img_payload = {
     "prompt": "(masterpiece, best quality), mature female, red bikini, purple hair, purple eyes, short hair, serious, outdoors",
     "negative_prompt": "(worst quality, low quality), blurry, loli, signature, realistic, lip, nose, rouge, lipstick, eyeshadow, censored, [plump]",
@@ -27,8 +28,8 @@ txt2img_payload = {
     "height": 864,
     "sampler_index": "Euler",
     "cfg_scale": 7,
-    "steps": 20,
-    "save_images": False,
+    "steps": 24,
+    "save_images": True,
     "alwayson_scripts": {
         "controlnet": {
         "args": [
@@ -67,7 +68,7 @@ img2img_payload = {
     "height": 1728,
     "sampler_index": "Euler",
     "cfg_scale": 7,
-    "steps": 20,
+    "steps": 24,
     "denoising_strength": 0.5,
     "save_images": True
 }
