@@ -12,7 +12,7 @@ export SSD_UUID="487b8741-9f8d-45bc-9f4e-0436d7f25e10"
 export SSD2_UUID='33e4badb-e8d5-42f8-ae8b-854cc64a097d'
 export SUBV_PACMAN="subvol_var_cache_pacman_pkg"
 export PACSTRP='base linux linux-firmware linux-headers linux-zen linux-zen-headers amd-ucode sudo nano zsh networkmanager git'
-export PKG_FS='btrfs-progs dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils nilfs-utils ntfs-3g reiserfsprogs udftools xfsprogs'
+export PKG_FS='btrfs-progs dosfstools exfatprogs f2fs-tools e2fsprogs jfsutils nilfs-utils reiserfsprogs udftools xfsprogs'
 # From https://github.com/lutris/docs/blob/master/InstallingDrivers.md https://www.gloriouseggroll.tv/how-to-get-out-of-wine-dependency-hell/
 export PKG_NVIDIA='nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings vulkan-icd-loader lib32-vulkan-icd-loader wine-staging winetricks giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo libxcomposite lib32-libxcomposite libxinerama lib32-libxinerama ncurses lib32-ncurses opencl-icd-loader lib32-opencl-icd-loader libxslt lib32-libxslt libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader cups samba dosbox'
 
@@ -40,34 +40,34 @@ func_chroot () {
     ln -sf /usr/share/zoneinfo/America/Phoenix /etc/localtime
     bootctl --path=/boot install
     arr_entry1=(
-    "title     Arch Linux 22a Zen"
-    "linux     /vmlinuz-linux-zen"
+    "title     Arch Zen 3 bcachefs git"
+    "linux     /vmlinuz-linux-bcachefs-git"
     "initrd    /amd-ucode.img"
-    "initrd    /initramfs-linux-zen.img"
-    "options   root=\"LABEL=$OS_NAME\" rootfstype=btrfs rootflags=subvol=subvol_${OS_NAME}_fsroot rw nvidia_drm.modeset=1")
-    printf "%s\n" "${arr_entry1[@]}" > /boot/loader/entries/arch-zen.conf
+    "initrd    /initramfs-linux-bcachefs-git.img"
+    "options   root=\"LABEL=$OS_NAME\" rootfstype=btrfs rootflags=subvol=subvol_${OS_NAME}_fsroot rw nvidia_drm.modeset=1 amd_pstate=active")
+    printf "%s\n" "${arr_entry1[@]}" > /boot/loader/entries/zen3-bcachefs-git.conf
     arr_entry2=(
     "title     Arch Linux 22a"
     "linux     /vmlinuz-linux"
     "initrd    /amd-ucode.img"
     "initrd    /initramfs-linux.img"
-    "options   root=\"LABEL=$OS_NAME\" rootfstype=btrfs rootflags=subvol=subvol_${OS_NAME}_fsroot rw nvidia_drm.modeset=1")
+    "options   root=\"LABEL=$OS_NAME\" rootfstype=btrfs rootflags=subvol=subvol_${OS_NAME}_fsroot rw nvidia_drm.modeset=1 amd_pstate=active")
     printf "%s\n" "${arr_entry2[@]}" > /boot/loader/entries/arch.conf
     arr_entry3=(
     "title     Arch Linux 22a Fallback"
     "linux     /vmlinuz-linux"
     "initrd    /amd-ucode.img"
     "initrd    /initramfs-linux-fallback.img"
-    "options   root=\"LABEL=$OS_NAME\" rootfstype=btrfs rootflags=subvol=subvol_${OS_NAME}_fsroot rw nvidia_drm.modeset=1")
+    "options   root=\"LABEL=$OS_NAME\" rootfstype=btrfs rootflags=subvol=subvol_${OS_NAME}_fsroot rw nvidia_drm.modeset=1 amd_pstate=active")
     printf "%s\n" "${arr_entry3[@]}" > /boot/loader/entries/arch-fallback.conf
     arr_entry4=(
     "title     Arch Linux 22a ck-generic-v3"
     "linux     /vmlinuz-linux-ck-generic-v3"
     "initrd    /amd-ucode.img"
     "initrd    /initramfs-linux-ck-generic-v3.img"
-    "options   root=\"LABEL=$OS_NAME\" rootfstype=btrfs rootflags=subvol=subvol_${OS_NAME}_fsroot rw nvidia_drm.modeset=1")
+    "options   root=\"LABEL=$OS_NAME\" rootfstype=btrfs rootflags=subvol=subvol_${OS_NAME}_fsroot rw nvidia_drm.modeset=1 amd_pstate=active")
     printf "%s\n" "${arr_entry4[@]}" > /boot/loader/entries/ck-generic-v3.conf
-    arr_loader=("default ck-generic-v3.conf" "timeout 4" "console-mode auto" "editor no")
+    arr_loader=("default zen3-bcachefs-git.conf" "timeout 4" "console-mode auto" "editor no")
     printf "%s\n" "${arr_loader[@]}" > /boot/loader/loader.conf
     bootctl --path=/boot update
     useradd -m -G "wheel,vboxusers,vboxsf" -s /bin/zsh $UNAME
