@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # To run the script:
-# pacman -Sy git; git clone https://github.com/dathide/archstuff; cd archstuff; sh <script>
+# pacman -Sy git; git clone https://github.com/dathide/archstuff; cd archstuff; ./<script>
 
 arch_num="24" # Used in partition labeling
 dev1="/dev/sdx"
