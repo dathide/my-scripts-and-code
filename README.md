@@ -1,2 +1,2 @@
-# archstuff
-Stuff I use to install Arch Linux.
+# Scripts and Code
+Scripts that I use for stuff, mainly on Arch Linux.
