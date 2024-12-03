@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # To run the script:
-# pacman -Sy git; git clone https://github.com/dathide/archstuff; cd archstuff; ./<script>
+# pacman -Sy git; git clone <url>; cd archstuff; ./<script>
 
 arch_num="24" # Used in partition labeling
 dev1="/dev/sdx"
@@ -65,12 +65,14 @@ mount --mkdir -o "${btrfs_mops},subvol=${subv1}_var_cache_pacman_pkg" "$dev1_roo
 mount --mkdir "$dev1_boot" "/mnt/boot"
 
 # Symlink m2a/var-cache-pacman-pkg to live system's /var/cache/pacman/pkg
-# which saves time downloading for repeat installs
+# which saves time downloading on repeat installs
+
+# Change pacman.conf to enable parallel downloading
 
 # Install packages
 pacstrap -K /mnt base linux linux-firmware amd-ucode networkmanager nano git
 
-# Generate an fstab file
+# Generate the fstab file
 genfstab -U /mnt >> /mnt/etc/fstab
 
 # Change root into the new system
