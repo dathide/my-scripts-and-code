@@ -61,8 +61,11 @@ mount --mkdir -o "${btrfs_mops},subvol=${subv1}_var_cache_pacman_pkg" "$dev1_roo
 # Mount boot partition
 mount --mkdir "$dev1_boot" "/mnt/boot"
 
+# Symlink m2a/var-cache-pacman-pkg to live system's /var/cache/pacman/pkg
+# which saves time downloading for repeat installs
+
 # Install packages
-pacstrap -K /mnt base linux linux-firmware amd-ucode networkmanager nano
+pacstrap -K /mnt base linux linux-firmware amd-ucode networkmanager nano git
 
 # Generate an fstab file
 genfstab -U /mnt >> /mnt/etc/fstab
