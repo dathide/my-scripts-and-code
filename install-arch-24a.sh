@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# To run the script:
+# pacman -Sy git; git clone https://github.com/dathide/archstuff; cd archstuff; sh <script>
+
 arch_num="24" # Used in partition labeling
 dev1="/dev/sdx"
 dev1_boot="${dev1}n"
