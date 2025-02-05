@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Add --use-sage-attention to ComfyUI args in SwarmUI
+
 # No error handling needed since some of these commands will fail during an update
 
 # Run swarmui's updater
@@ -10,11 +12,11 @@ cd dlbackend/comfyui || exit
 git pull
 cd ../.. || exit
 pip install --upgrade pip wheel
-pip install --upgrade torch torchvision torchaudio xformers
+pip install --upgrade torch torchvision torchaudio xformers sageattention
 pip install --upgrade -r dlbackend/comfyui/requirements.txt
 pip install --upgrade -r src/BuiltinExtensions/ComfyUIBackend/ExtraNodes/SwarmComfyExtra/requirements.txt
 # For some reason, these aren't in the requirements files
-pip install onnxruntime-gpu imageio_ffmpeg
+pip install --upgrade onnxruntime-gpu imageio_ffmpeg
 
 # Create symlinks
 rm -r dlbackend/comfyui/output
@@ -37,65 +39,67 @@ cd Models/controlnet || exit
 ln -s "$DIR1/ill-cnet" '.'
 cd ../.. || exit
 
+#####
 # Install and update extensions
+#####
+
 cd dlbackend/comfyui/custom_nodes || exit
 
-git clone https://github.com/ltdrdata/ComfyUI-Manager
-cd ComfyUI-Manager || exit
-git pull
-pip install --upgrade -r requirements.txt
-cd .. || exit
+# Define extensions array
+extensions=(
+    "https://github.com/ltdrdata/ComfyUI-Manager"
+    "https://github.com/ltdrdata/ComfyUI-Impact-Pack"
+    "https://github.com/WASasquatch/was-node-suite-comfyui"
+    "https://github.com/blepping/comfyui_jankdiffusehigh"
+    "https://github.com/pamparamm/ComfyUI-ppm"
+    "https://github.com/exectails/comfyui-et_dynamicprompts"
+    "https://github.com/Fannovel16/comfyui_controlnet_aux"
+    "https://github.com/Munkyfoot/ComfyUI-TextOverlay"
+    "https://github.com/city96/ComfyUI-GGUF"
+    "https://github.com/Extraltodeus/Skimmed_CFG"
+)
 
-git clone https://github.com/ltdrdata/ComfyUI-Impact-Pack
-cd ComfyUI-Impact-Pack || exit
-git pull
-pip install --upgrade -r requirements.txt
-python install.py
-cd .. || exit
+# Clone or update extensions
+for url in "${extensions[@]}"; do
+    repo_name=$(basename "$url" .git)
+    if [ -d "$repo_name" ]; then
+        echo "Updating $repo_name..."
+        cd "$repo_name" && git pull && cd ..
+    else
+        echo "Cloning $repo_name..."
+        git clone "$url"
+    fi
+done
 
-git clone https://github.com/WASasquatch/was-node-suite-comfyui
-cd was-node-suite-comfyui || exit
-git pull
-pip install --upgrade -r requirements.txt
-cd .. || exit
+# Collect requirements from all extensions
+requirements=""
+for dir in */; do
+    dir=${dir%/}
+    if [ -f "$dir/requirements.txt" ]; then
+        echo "Processing requirements for $dir..."
+        while IFS= read -r line || [ -n "$line" ]; do
+            # Clean the line and extract package name
+            line_clean=$(echo "$line" | sed -e 's/#.*//' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+            if [ -n "$line_clean" ]; then
+                pkg_name=$(echo "$line_clean" | awk -F'[<>=!]' '{print $1}')
+                requirements+="$pkg_name "
+            fi
+        done < "$dir/requirements.txt"
+    fi
+done
 
-git clone https://github.com/blepping/comfyui_jankdiffusehigh
-cd comfyui_jankdiffusehigh || exit
-git pull
-pip install --upgrade -r requirements.txt
-cd .. || exit
+# Install all collected requirements
+if [ -n "$requirements" ]; then
+    echo "Installing packages: ${requirements}"
+    # Convert to array and remove duplicates
+    unique_requirements=($(echo "${requirements}" | tr ' ' '\n' | awk '!a[$0]++'))
+    pip install --upgrade "${unique_requirements[@]}"
+fi
 
-git clone https://github.com/pamparamm/ComfyUI-ppm
-cd ComfyUI-ppm || exit
-git pull
-cd .. || exit
-
-git clone https://github.com/exectails/comfyui-et_dynamicprompts
-cd comfyui-et_dynamicprompts || exit
-git pull
-pip install --upgrade -r requirements.txt
-cd .. || exit
-
-git clone https://github.com/Fannovel16/comfyui_controlnet_aux
-cd comfyui_controlnet_aux || exit
-git pull
-pip install --upgrade -r requirements.txt
-cd .. || exit
-
-git clone https://github.com/Munkyfoot/ComfyUI-TextOverlay
-cd ComfyUI-TextOverlay || exit
-git pull
-cd .. || exit
-
-git clone https://github.com/city96/ComfyUI-GGUF
-cd ComfyUI-GGUF || exit
-git pull
-pip install --upgrade -r requirements.txt
-cd .. || exit
-
-git clone https://github.com/Extraltodeus/Skimmed_CFG
-cd Skimmed_CFG || exit
-git pull
-cd .. || exit
+# Special handling for Impact-Pack
+if [ -d "ComfyUI-Impact-Pack" ]; then
+    echo "Running Impact-Pack installation script..."
+    cd ComfyUI-Impact-Pack && python install.py && cd ..
+fi
 
 exit 0
