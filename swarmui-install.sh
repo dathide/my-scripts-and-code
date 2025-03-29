@@ -6,9 +6,11 @@
 # pyenv install 3.11
 # pyenv virtualenv 3.11 swarmui
 
+# Add --use-sage-attention to ComfyUI args in SwarmUI
+
 # I add the following to my .zshrc:
-# alias swarmuiu="cd /home/zen/m2b/ai-img/swarmui/ && sh /home/zen/m2a/fillets/linux/scripts/swarmui-comfyui-install-and-update-everything.sh && cd /home/zen/m2b/ai-img/swarmui/ && sh launch-linux.sh"
-# alias swarmui="cd /home/zen/m2b/ai-img/swarmui/ && sh launch-linux.sh"
+# alias swarmuiu="cd /home/zen/m2b/ai-img/swarmui/ && bash /home/zen/m2b/fillets/linux/scripts/swarmui-comfyui-install-and-update-everything.sh && cd /home/zen/m2b/ai-img/swarmui/ && sh launch-linux.sh"
+# alias swarmui="cd /home/zen/m2b/ai-img/swarmui/ && bash launch-linux.sh"
 
 # Function to handle errors
 handle_error() {
