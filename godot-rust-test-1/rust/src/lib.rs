@@ -7,7 +7,6 @@ struct MyExtension;
 unsafe impl ExtensionLibrary for MyExtension {}
 
 // Declare a class called Player, which inherits Sprite2D (a node type)
-
 #[derive(GodotClass)]
 #[class(base=Sprite2D)]
 struct Player {
@@ -18,7 +17,6 @@ struct Player {
 }
 
 // Override the init method, also known as the constructor
-
 #[godot_api]
 impl ISprite2D for Player {
     fn init(base: Base<Sprite2D>) -> Self {
@@ -51,4 +49,18 @@ impl ISprite2D for Player {
         //     this.position() + velocity * delta as f32
         // );
     }
+}
+
+// Add some functionality to the Player class, which can be called from GDScript
+// Add a function to increase the speed, and a signal to notify other objects of the speed change.
+#[godot_api]
+impl Player {
+    #[func]
+    fn increase_speed(&mut self, amount: f64) {
+        self.speed += amount;
+        self.signals().speed_increased().emit();
+    }
+
+    #[signal]
+    fn speed_increased();
 }
