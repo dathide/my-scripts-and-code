@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # This script is called nexusmods-modpack-installer-1.sh
-# get_full_json_for_one_id() <MOD_ID> [GAME_DOMAIN] outputs raw json for one mod id's full file history
-# get_json_section_file_updates() "$RAW_JSON" outputs raw json for the 'file_updates' section
+# get_full_json_for_one_id <MOD_ID> [GAME_DOMAIN] outputs raw json for one mod id's full file history
+# get_json_section_file_updates "$RAW_JSON" outputs raw json for the 'file_updates' section
+# get_latest_update_by_prefix "Prefix String" "$FILE_UPDATES_JSON" outputs raw json for the section with the the "new_file_name" that starts with the prefix string and has the latest "uploaded_time"
 
 # Function to fetch the full JSON for a given mod ID
 # Usage: get_mod_file_json <MOD_ID> [GAME_DOMAIN]
@@ -75,6 +76,42 @@ get_json_section_file_updates() {
     fi
 }
 
+# Function to extract the latest file update matching a specific prefix
+# Usage 1: get_latest_update_by_prefix "Prefix String" "$FILE_UPDATES_JSON"
+# Usage 2: echo "$FILE_UPDATES_JSON" | get_latest_update_by_prefix "Prefix String"
+get_latest_update_by_prefix() {
+    local prefix="$1"
+    local input_json
+
+    # Validate that a prefix was provided
+    if [ -z "$prefix" ]; then
+        echo "Error: Prefix string is required as the first argument." >&2
+        return 1
+    fi
+
+    # Check if JSON was passed as a second positional argument
+    if [ -n "$2" ]; then
+        input_json="$2"
+    # Otherwise, check if data is being piped in via stdin
+    elif ! [ -t 0 ]; then
+        input_json=$(cat)
+    else
+        echo "Error: No JSON input provided to get_latest_update_by_prefix." >&2
+        return 1
+    fi
+
+    # Ensure jq is installed
+    if command -v jq &> /dev/null; then
+        # 1. map(select(...)): Filters the array to only include objects where new_file_name starts with the prefix
+        # 2. max_by(.uploaded_timestamp): Finds the object in the filtered array with the highest timestamp
+        # 3. -c: Outputs as raw/compact JSON
+        echo "$input_json" | jq -c --arg prefix "$prefix" 'map(select(.new_file_name | startswith($prefix))) | max_by(.uploaded_timestamp)'
+    else
+        echo "Error: 'jq' is required to extract specific JSON sections. Please install jq." >&2
+        return 1
+    fi
+}
+
 # --- Execution Block ---
 # If the script is executed directly (not sourced by another script), run the function
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
@@ -83,6 +120,8 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
         exit 1
     fi
 
-    # Call the function with the provided command-line arguments
-    get_full_json_for_one_id "$1" | get_json_section_file_updates
+    # \Find the latest file update starting with the string
+    get_full_json_for_one_id "$1" | \
+        get_json_section_file_updates | \
+        get_latest_update_by_prefix "Optional Quick Start - SE-63953"
 fi
