@@ -5,8 +5,18 @@
 # get_json_section_file_updates "$RAW_JSON" outputs raw json for the 'file_updates' section
 # get_latest_update_by_prefix "Prefix String" "$FILE_UPDATES_JSON" outputs raw json for the section with the the "new_file_name" that starts with the prefix string and has the latest "uploaded_time"
 
+# --- Global Dependency Check ---
+# Check for required commands once at the top to avoid redundancy inside functions.
+for cmd in curl jq; do
+    if ! command -v "$cmd" &> /dev/null; then
+        echo "Error: '$cmd' is required by this script. Please install $cmd." >&2
+        # Safely exit if executed directly, or return if sourced
+        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && exit 1 || return 1
+    fi
+done
+
 # Function to fetch the full JSON for a given mod ID
-# Usage: get_mod_file_json <MOD_ID> [GAME_DOMAIN]
+# Usage: get_full_json_for_one_id <MOD_ID> [GAME_DOMAIN]
 get_full_json_for_one_id() {
     local mod_id="$1"
     # Default to skyrimspecialedition if no second argument is provided
@@ -50,8 +60,8 @@ get_full_json_for_one_id() {
 }
 
 # Function to extract the 'file_updates' section from raw Nexus Mods JSON as raw/compact JSON
-# Usage 1: get_file_updates_json "$RAW_JSON"
-# Usage 2: echo "$RAW_JSON" | get_file_updates_json
+# Usage 1: get_json_section_file_updates "$RAW_JSON"
+# Usage 2: echo "$RAW_JSON" | get_json_section_file_updates
 get_json_section_file_updates() {
     local input_json
 
@@ -62,18 +72,12 @@ get_json_section_file_updates() {
     elif ! [ -t 0 ]; then
         input_json=$(cat)
     else
-        echo "Error: No JSON input provided to get_file_updates_json." >&2
+        echo "Error: No JSON input provided to get_json_section_file_updates." >&2
         return 1
     fi
 
-    # Ensure jq is installed
-    if command -v jq &> /dev/null; then
-        # Use -c (--compact-output) to ensure the output is raw, unformatted JSON
-        echo "$input_json" | jq -c '.file_updates'
-    else
-        echo "Error: 'jq' is required to extract specific JSON sections. Please install jq." >&2
-        return 1
-    fi
+    # Use -c (--compact-output) to ensure the output is raw, unformatted JSON
+    echo "$input_json" | jq -c '.file_updates'
 }
 
 # Function to extract the latest file update matching a specific prefix
@@ -100,16 +104,10 @@ get_latest_update_by_prefix() {
         return 1
     fi
 
-    # Ensure jq is installed
-    if command -v jq &> /dev/null; then
-        # 1. map(select(...)): Filters the array to only include objects where new_file_name starts with the prefix
-        # 2. max_by(.uploaded_timestamp): Finds the object in the filtered array with the highest timestamp
-        # 3. -c: Outputs as raw/compact JSON
-        echo "$input_json" | jq -c --arg prefix "$prefix" 'map(select(.new_file_name | startswith($prefix))) | max_by(.uploaded_timestamp)'
-    else
-        echo "Error: 'jq' is required to extract specific JSON sections. Please install jq." >&2
-        return 1
-    fi
+    # 1. map(select(...)): Filters the array to only include objects where new_file_name starts with the prefix
+    # 2. max_by(.uploaded_timestamp): Finds the object in the filtered array with the highest timestamp
+    # 3. -c: Outputs as raw/compact JSON
+    echo "$input_json" | jq -c --arg prefix "$prefix" 'map(select(.new_file_name | startswith($prefix))) | max_by(.uploaded_timestamp)'
 }
 
 # --- Execution Block ---
@@ -120,7 +118,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
         exit 1
     fi
 
-    # \Find the latest file update starting with the string
+    # Find the latest file update starting with the string
     get_full_json_for_one_id "$1" | \
         get_json_section_file_updates | \
         get_latest_update_by_prefix "Optional Quick Start - SE-63953"
