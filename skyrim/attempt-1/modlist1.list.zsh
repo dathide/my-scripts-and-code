@@ -1,0 +1,5 @@
+# Format: "String only for easy human identification" "URL or the beginning of the file name ending in -ID"
+mod_list=(
+    "SKSE - Skyrim Script Extender" "https://skse.silverlock.org/beta/skse64_2_02_06.7z"
+    "Optional Quick Start" "Optional Quick Start - SE-63953"
+)

@@ -1,9 +1,10 @@
+### Working script to output all JSON for a mod
 #!/bin/bash
 
-# Ensure the NEXUS_API_KEY environment variable is set
-if [ -z "$NEXUS_API_KEY" ]; then
-    echo "Error: NEXUS_API_KEY is not set."
-    echo "Please export it using: export NEXUS_API_KEY='your_api_key'"
+# Ensure the NEXUSMODS_API_KEY environment variable is set
+if [ -z "$NEXUSMODS_API_KEY" ]; then
+    echo "Error: NEXUSMODS_API_KEY is not set."
+    echo "Please export it using: export NEXUSMODS_API_KEY='your_api_key'"
     exit 1
 fi
 
@@ -19,7 +20,7 @@ echo "Fetching file information for $GAME_DOMAIN mod $MOD_ID..."
 # Make the API request using curl, capturing both the response body and the HTTP status code
 response=$(curl -s -w "%{http_code}" -X GET "$API_URL" \
     -H "accept: application/json" \
-    -H "apikey: $NEXUS_API_KEY")
+    -H "apikey: $NEXUSMODS_API_KEY")
 
 # Extract the HTTP status code (last 3 characters) and the JSON body
 http_code="${response:${#response}-3}"

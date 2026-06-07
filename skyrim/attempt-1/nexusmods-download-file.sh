@@ -33,7 +33,17 @@ body="${response:0:${#response}-3}"
 
 # Check if the request was successful
 if [ "$http_code" -eq 200 ]; then
-    # 1. Output the file_updates array
+    # 1. Output the file_updates array, which starts like this:
+    #--- file_updates ---
+    #[
+    #   {
+    #       "old_file_id": 265600,
+    #       "new_file_id": 266650,
+    #       "old_file_name": "Optional Quick Start - SE-63953-1-0-1-1645348417.7z",
+    #       "new_file_name": "Optional Quick Start - SE-63953-1-0-2-1645792984.7z",
+    #       "uploaded_timestamp": 1645792984,
+    #       "uploaded_time": "2022-02-25T12:43:04.000+00:00"
+    #},
     echo "--- file_updates ---"
     echo "$body" | jq '.file_updates'
     echo "--------------------"
