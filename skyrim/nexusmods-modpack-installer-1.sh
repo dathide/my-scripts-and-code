@@ -1,8 +1,10 @@
 #!/bin/bash
 
-# get_full_json_for_one_id() <MOD_ID> [GAME_DOMAIN] outputs raw json for the
+# This script is called nexusmods-modpack-installer-1.sh
+# get_full_json_for_one_id() <MOD_ID> [GAME_DOMAIN] outputs raw json for one mod id's full file history
+# get_json_section_file_updates() "$RAW_JSON" outputs raw json for the 'file_updates' section
 
-# Function to fetch the full file JSON for a given mod ID
+# Function to fetch the full JSON for a given mod ID
 # Usage: get_mod_file_json <MOD_ID> [GAME_DOMAIN]
 get_full_json_for_one_id() {
     local mod_id="$1"
@@ -46,6 +48,33 @@ get_full_json_for_one_id() {
     fi
 }
 
+# Function to extract the 'file_updates' section from raw Nexus Mods JSON as raw/compact JSON
+# Usage 1: get_file_updates_json "$RAW_JSON"
+# Usage 2: echo "$RAW_JSON" | get_file_updates_json
+get_json_section_file_updates() {
+    local input_json
+
+    # Check if JSON was passed as a positional argument
+    if [ -n "$1" ]; then
+        input_json="$1"
+    # Otherwise, check if data is being piped in via stdin
+    elif ! [ -t 0 ]; then
+        input_json=$(cat)
+    else
+        echo "Error: No JSON input provided to get_file_updates_json." >&2
+        return 1
+    fi
+
+    # Ensure jq is installed
+    if command -v jq &> /dev/null; then
+        # Use -c (--compact-output) to ensure the output is raw, unformatted JSON
+        echo "$input_json" | jq -c '.file_updates'
+    else
+        echo "Error: 'jq' is required to extract specific JSON sections. Please install jq." >&2
+        return 1
+    fi
+}
+
 # --- Execution Block ---
 # If the script is executed directly (not sourced by another script), run the function
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
@@ -55,5 +84,5 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     fi
 
     # Call the function with the provided command-line arguments
-    get_full_json_for_one_id "$1" "$2"
+    get_full_json_for_one_id "$1" | get_json_section_file_updates
 fi
