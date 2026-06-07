@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # This script is called nexusmods-modpack-installer-1.sh
-# get_full_json_for_one_id <MOD_ID> [GAME_DOMAIN] outputs raw json for one mod id's full file history
+# get_full_json_for_one_id <MOD_STRING> [GAME_DOMAIN] outputs raw json for one mod id's full file history
 # get_json_section_file_updates "$RAW_JSON" outputs raw json for the 'file_updates' section
-# get_latest_update_by_prefix "Prefix String" "$FILE_UPDATES_JSON" outputs raw json for the section with the the "new_file_name" that starts with the prefix string and has the latest "uploaded_time"
+# get_latest_update_by_prefix "Prefix String" "$FILE_UPDATES_JSON" outputs raw json for the section with the "new_file_name" that starts with the prefix string and has the latest "uploaded_time"
 
 # --- Global Dependency Check ---
 # Check for required commands once at the top to avoid redundancy inside functions.
@@ -15,18 +15,21 @@ for cmd in curl jq; do
     fi
 done
 
-# Function to fetch the full JSON for a given mod ID
-# Usage: get_full_json_for_one_id <MOD_ID> [GAME_DOMAIN]
+# Function to fetch the full JSON for a given mod string
+# Usage: get_full_json_for_one_id <MOD_STRING> [GAME_DOMAIN]
 get_full_json_for_one_id() {
-    local mod_id="$1"
+    local mod_string="$1"
     # Default to skyrimspecialedition if no second argument is provided
     local game_domain="${2:-skyrimspecialedition}"
 
     # Validate inputs
-    if [ -z "$mod_id" ]; then
-        echo "Error: Mod ID is required as the first argument." >&2
+    if [ -z "$mod_string" ]; then
+        echo "Error: Mod string is required as the first argument." >&2
         return 1
     fi
+
+    # Extract the mod ID from the string (everything after the last dash)
+    local mod_id="${mod_string##*-}"
 
     # Ensure the NEXUSMODS_API_KEY environment variable is set
     if [ -z "$NEXUSMODS_API_KEY" ]; then
@@ -114,12 +117,13 @@ get_latest_update_by_prefix() {
 # If the script is executed directly (not sourced by another script), run the function
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     if [ -z "$1" ]; then
-        echo "Usage: $0 <MOD_ID> [GAME_DOMAIN]" >&2
+        echo "Usage: $0 <MOD_STRING> [GAME_DOMAIN]" >&2
+        echo "Example: $0 \"Optional Quick Start - SE-63953\"" >&2
         exit 1
     fi
 
     # Find the latest file update starting with the string
-    get_full_json_for_one_id "$1" | \
+    get_full_json_for_one_id "$1" "$2" | \
         get_json_section_file_updates | \
-        get_latest_update_by_prefix "Optional Quick Start - SE-63953"
+        get_latest_update_by_prefix "$1"
 fi
