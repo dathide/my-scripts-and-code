@@ -1,2 +1,2 @@
-# Scripts and Code
-Scripts and code that I mainly use in Arch Linux.
+# my-scripts-and-code
+My scripts and code that I use on my Linux systems.
