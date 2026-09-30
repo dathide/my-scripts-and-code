@@ -4,10 +4,6 @@
 #
 # Installs passwordless KDE menu launchers for Acer Predator laptop modes:
 #
-#   Performance: Acer "performance" + TuneD "latency-performance"
-#   Balanced:    Acer "balanced"    + TuneD "balanced"
-#   Low Power:   Acer "low-power"   + TuneD "powersave"
-#
 # Run from the target user's desktop session:
 #   sudo ./setup-acer-modes.sh
 #
@@ -77,57 +73,86 @@ install -d -m 755 /usr/local/sbin
 
 cat >/usr/local/sbin/acer-mode <<'EOF'
 #!/usr/bin/env bash
-#
-# Root-only helper used by the Acer desktop launchers.
-#
-
 set -euo pipefail
 
-PLATFORM_PROFILE="/sys/firmware/acpi/platform_profile"
+RAPL=/sys/class/powercap/intel-rapl:0
+PL1_UW="$RAPL/constraint_0_power_limit_uw"   # PL1, sustained
+PL2_UW="$RAPL/constraint_1_power_limit_uw"   # PL2, short-term boost
+PLATFORM_PROFILE=/sys/firmware/acpi/platform_profile   # read-only, display only
 
-if [[ ! -w "${PLATFORM_PROFILE}" ]]; then
-    echo "Error: Acer platform-profile interface is unavailable." >&2
-    exit 1
-fi
+platform_profile_str() {
+    if [[ -r "$PLATFORM_PROFILE" ]]; then
+        cat "$PLATFORM_PROFILE"
+    else
+        echo "not available"
+    fi
+}
+
+usage() {
+    echo "Usage: $0 {performance|low-power|balanced|status}" >&2
+    exit 2
+}
 
 case "${1:-}" in
     performance)
         TUNED_PROFILE="latency-performance"
-        ACER_PROFILE="performance"
-        DESCRIPTION="Performance + TuneD latency-performance"
-        ;;
-    balanced)
-        TUNED_PROFILE="balanced"
-        ACER_PROFILE="balanced"
-        DESCRIPTION="Balanced + TuneD balanced"
+        PL1_W=75
+        PL2_W=140
         ;;
     low-power)
         TUNED_PROFILE="powersave"
-        ACER_PROFILE="low-power"
-        DESCRIPTION="Low-power + TuneD powersave"
+        PL1_W=40
+        PL2_W=70
+        ;;
+    balanced)
+        TUNED_PROFILE="balanced-battery"
+        PL1_W=55
+        PL2_W=115
         ;;
     status)
-        echo "Acer platform profile: $(cat "${PLATFORM_PROFILE}")"
-        echo "TuneD profile:        $(tuned-adm active)"
+        echo "TuneD profile:    $(tuned-adm active)"
+        echo "Platform profile: $(platform_profile_str)"
+        if [[ -r "$PL1_UW" && -r "$PL2_UW" ]]; then
+            echo "PL1 (sustained):  $(( $(cat "$PL1_UW") / 1000000 )) W"
+            echo "PL2 (boost):      $(( $(cat "$PL2_UW") / 1000000 )) W"
+        else
+            echo "PL1/PL2:          RAPL interface not readable"
+        fi
         exit 0
         ;;
     *)
-        echo "Usage: $0 {performance|balanced|low-power|status}" >&2
-        exit 2
+        usage
         ;;
 esac
 
-echo "Applying TuneD profile: ${TUNED_PROFILE}"
-tuned-adm profile "${TUNED_PROFILE}"
+if [[ ! -w "$PL1_UW" || ! -w "$PL2_UW" ]]; then
+    echo "Error: RAPL power-limit interface unavailable or not writable (need root)." >&2
+    exit 1
+fi
 
-echo "Applying Acer firmware profile: ${ACER_PROFILE}"
-printf '%s\n' "${ACER_PROFILE}" >"${PLATFORM_PROFILE}"
+PL1_MICRO=$(( PL1_W * 1000000 ))
+PL2_MICRO=$(( PL2_W * 1000000 ))
+
+echo "Applying TuneD profile: $TUNED_PROFILE"
+tuned-adm profile "$TUNED_PROFILE"
+
+echo "Applying power limits:  PL1=${PL1_W} W, PL2=${PL2_W} W"
+printf '%s\n' "$PL1_MICRO" > "$PL1_UW"
+printf '%s\n' "$PL2_MICRO" > "$PL2_UW"
+
+ACTUAL_PL1=$(( $(cat "$PL1_UW") / 1000000 ))
+ACTUAL_PL2=$(( $(cat "$PL2_UW") / 1000000 ))
 
 echo
 echo "Active configuration:"
-echo "  Acer platform profile: $(cat "${PLATFORM_PROFILE}")"
-echo "  TuneD profile:        $(tuned-adm active)"
-echo "  Selected mode:        ${DESCRIPTION}"
+echo "  TuneD profile:    $(tuned-adm active)"
+echo "  Platform profile: $(platform_profile_str)"
+echo "  PL1 (sustained):  ${ACTUAL_PL1} W   (requested ${PL1_W} W)"
+echo "  PL2 (boost):      ${ACTUAL_PL2} W   (requested ${PL2_W} W)"
+
+if (( ACTUAL_PL1 != PL1_W || ACTUAL_PL2 != PL2_W )); then
+    echo "  note: firmware adjusted a limit; values shown are what the CPU accepted." >&2
+fi
 EOF
 
 chown root:root /usr/local/sbin/acer-mode
@@ -135,8 +160,6 @@ chmod 755 /usr/local/sbin/acer-mode
 
 #
 # Strictly limited passwordless sudo authorization.
-#
-# Eric can run only these exact acer-mode invocations as root.
 #
 SUDOERS_FILE="/etc/sudoers.d/acer-mode-${TARGET_USER}"
 SUDOERS_TEMP="$(mktemp)"
@@ -183,17 +206,17 @@ MODE="${1:-}"
 case "${MODE}" in
     performance)
         TITLE="Acer mode changed"
-        MESSAGE="Performance + TuneD latency-performance"
+        MESSAGE="Performance"
         ICON="power-profile-performance"
         ;;
     balanced)
         TITLE="Acer mode changed"
-        MESSAGE="Balanced + TuneD balanced"
+        MESSAGE="Balanced"
         ICON="power-profile-balanced"
         ;;
     low-power)
         TITLE="Acer mode changed"
-        MESSAGE="Low-power + TuneD powersave"
+        MESSAGE="Low-Power"
         ICON="power-profile-power-saver"
         ;;
     *)
@@ -289,7 +312,7 @@ fi
 echo
 echo "Installation complete."
 echo
-echo "Eric can now open the KDE Application Launcher and search for:"
+echo "You can now open the KDE Application Launcher and search for:"
 echo "  Acer: Performance Mode"
 echo "  Acer: Balanced Mode"
 echo "  Acer: Low-Power Mode"
