@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+RAPL=/sys/class/powercap/intel-rapl:0
+PL1_UW="$RAPL/constraint_0_power_limit_uw"   # PL1, sustained
+PL2_UW="$RAPL/constraint_1_power_limit_uw"   # PL2, short-term boost
+PLATFORM_PROFILE=/sys/firmware/acpi/platform_profile   # read-only, display only
+
+platform_profile_str() {
+    if [[ -r "$PLATFORM_PROFILE" ]]; then
+        cat "$PLATFORM_PROFILE"
+    else
+        echo "not available"
+    fi
+}
+
+usage() {
+    echo "Usage: $0 {performance|low-power|balanced|status}" >&2
+    exit 2
+}
+
+case "${1:-}" in
+    performance)
+        TUNED_PROFILE="latency-performance"
+        PL1_W=75
+        PL2_W=140
+        ;;
+    low-power)
+        TUNED_PROFILE="powersave"
+        PL1_W=40
+        PL2_W=70
+        ;;
+    balanced)
+        TUNED_PROFILE="balanced-battery"
+        PL1_W=55
+        PL2_W=115
+        ;;
+    status)
+        echo "TuneD profile:    $(tuned-adm active)"
+        echo "Platform profile: $(platform_profile_str)"
+        if [[ -r "$PL1_UW" && -r "$PL2_UW" ]]; then
+            echo "PL1 (sustained):  $(( $(cat "$PL1_UW") / 1000000 )) W"
+            echo "PL2 (boost):      $(( $(cat "$PL2_UW") / 1000000 )) W"
+        else
+            echo "PL1/PL2:          RAPL interface not readable"
+        fi
+        exit 0
+        ;;
+    *)
+        usage
+        ;;
+esac
+
+if [[ ! -w "$PL1_UW" || ! -w "$PL2_UW" ]]; then
+    echo "Error: RAPL power-limit interface unavailable or not writable (need root)." >&2
+    exit 1
+fi
+
+PL1_MICRO=$(( PL1_W * 1000000 ))
+PL2_MICRO=$(( PL2_W * 1000000 ))
+
+echo "Applying TuneD profile: $TUNED_PROFILE"
+tuned-adm profile "$TUNED_PROFILE"
+
+echo "Applying power limits:  PL1=${PL1_W} W, PL2=${PL2_W} W"
+printf '%s\n' "$PL1_MICRO" > "$PL1_UW"
+printf '%s\n' "$PL2_MICRO" > "$PL2_UW"
+
+ACTUAL_PL1=$(( $(cat "$PL1_UW") / 1000000 ))
+ACTUAL_PL2=$(( $(cat "$PL2_UW") / 1000000 ))
+
+echo
+echo "Active configuration:"
+echo "  TuneD profile:    $(tuned-adm active)"
+echo "  Platform profile: $(platform_profile_str)"
+echo "  PL1 (sustained):  ${ACTUAL_PL1} W   (requested ${PL1_W} W)"
+echo "  PL2 (boost):      ${ACTUAL_PL2} W   (requested ${PL2_W} W)"
+
+if (( ACTUAL_PL1 != PL1_W || ACTUAL_PL2 != PL2_W )); then
+    echo "  note: firmware adjusted a limit; values shown are what the CPU accepted." >&2
+fi
