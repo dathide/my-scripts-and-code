@@ -78,11 +78,21 @@ set -euo pipefail
 RAPL=/sys/class/powercap/intel-rapl:0
 PL1_UW="$RAPL/constraint_0_power_limit_uw"   # PL1, sustained
 PL2_UW="$RAPL/constraint_1_power_limit_uw"   # PL2, short-term boost
+MAX_PERF_PCT=/sys/devices/system/cpu/intel_pstate/max_perf_pct
+MAX_PERF_PCT_VAL=85                          # applied on every profile
 PLATFORM_PROFILE=/sys/firmware/acpi/platform_profile   # read-only, display only
 
 platform_profile_str() {
     if [[ -r "$PLATFORM_PROFILE" ]]; then
         cat "$PLATFORM_PROFILE"
+    else
+        echo "not available"
+    fi
+}
+
+max_perf_pct_str() {
+    if [[ -r "$MAX_PERF_PCT" ]]; then
+        cat "$MAX_PERF_PCT"
     else
         echo "not available"
     fi
@@ -112,6 +122,7 @@ case "${1:-}" in
     status)
         echo "TuneD profile:    $(tuned-adm active)"
         echo "Platform profile: $(platform_profile_str)"
+        echo "Max perf pct:     $(max_perf_pct_str)"
         if [[ -r "$PL1_UW" && -r "$PL2_UW" ]]; then
             echo "PL1 (sustained):  $(( $(cat "$PL1_UW") / 1000000 )) W"
             echo "PL2 (boost):      $(( $(cat "$PL2_UW") / 1000000 )) W"
@@ -129,6 +140,10 @@ if [[ ! -w "$PL1_UW" || ! -w "$PL2_UW" ]]; then
     echo "Error: RAPL power-limit interface unavailable or not writable (need root)." >&2
     exit 1
 fi
+if [[ ! -w "$MAX_PERF_PCT" ]]; then
+    echo "Error: $MAX_PERF_PCT unavailable or not writable (need root; is the intel_pstate driver active?)." >&2
+    exit 1
+fi
 
 PL1_MICRO=$(( PL1_W * 1000000 ))
 PL2_MICRO=$(( PL2_W * 1000000 ))
@@ -136,22 +151,29 @@ PL2_MICRO=$(( PL2_W * 1000000 ))
 echo "Applying TuneD profile: $TUNED_PROFILE"
 tuned-adm profile "$TUNED_PROFILE"
 
+# Written after the TuneD switch on purpose: activating a profile can reset
+# intel_pstate tunables, so this write must come second to stick.
+echo "Applying max_perf_pct:  ${MAX_PERF_PCT_VAL} (% of intel_pstate max)"
+printf '%s\n' "$MAX_PERF_PCT_VAL" > "$MAX_PERF_PCT"
+
 echo "Applying power limits:  PL1=${PL1_W} W, PL2=${PL2_W} W"
 printf '%s\n' "$PL1_MICRO" > "$PL1_UW"
 printf '%s\n' "$PL2_MICRO" > "$PL2_UW"
 
 ACTUAL_PL1=$(( $(cat "$PL1_UW") / 1000000 ))
 ACTUAL_PL2=$(( $(cat "$PL2_UW") / 1000000 ))
+ACTUAL_MAX_PCT=$(( $(cat "$MAX_PERF_PCT") ))
 
 echo
 echo "Active configuration:"
 echo "  TuneD profile:    $(tuned-adm active)"
 echo "  Platform profile: $(platform_profile_str)"
+echo "  Max perf pct:     ${ACTUAL_MAX_PCT}   (requested ${MAX_PERF_PCT_VAL})"
 echo "  PL1 (sustained):  ${ACTUAL_PL1} W   (requested ${PL1_W} W)"
 echo "  PL2 (boost):      ${ACTUAL_PL2} W   (requested ${PL2_W} W)"
 
-if (( ACTUAL_PL1 != PL1_W || ACTUAL_PL2 != PL2_W )); then
-    echo "  note: firmware adjusted a limit; values shown are what the CPU accepted." >&2
+if (( ACTUAL_PL1 != PL1_W || ACTUAL_PL2 != PL2_W || ACTUAL_MAX_PCT != MAX_PERF_PCT_VAL )); then
+    echo "  note: the driver/firmware clamped a requested value; shown values are what the system accepted." >&2
 fi
 EOF
 
