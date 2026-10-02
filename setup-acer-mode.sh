@@ -75,12 +75,32 @@ cat >/usr/local/sbin/acer-mode <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 
-RAPL=/sys/class/powercap/intel-rapl:0
-PL1_UW="$RAPL/constraint_0_power_limit_uw"   # PL1, sustained
-PL2_UW="$RAPL/constraint_1_power_limit_uw"   # PL2, short-term boost
 MAX_PERF_PCT=/sys/devices/system/cpu/intel_pstate/max_perf_pct
 MAX_PERF_PCT_VAL=85                          # applied on every profile
-PLATFORM_PROFILE=/sys/firmware/acpi/platform_profile   # read-only, display only
+PLATFORM_PROFILE=/sys/firmware/acpi/platform_profile   # read-write when the ACPI driver is present; TuneD sets it (drives EC fan curves)
+
+# --- RAPL: auto-detect the CPU package domain (MSR interface) ---
+# /sys/class/powercap holds several intel-rapl entries. We want the top-level
+# MSR domain whose name is "package-*" (e.g. intel-rapl:0). Deliberately skipped:
+#   intel-rapl:X:Y      subdomains (core/uncore/gfx) - energy counters, not limits
+#   intel-rapl-mmio:*   MMIO view of the same package - MSR domain is canonical
+find_package_rapl() {
+    local d b name
+    for d in /sys/class/powercap/intel-rapl:*; do
+        b=${d##*/}
+        [[ $b =~ ^intel-rapl:[0-9]+$ ]] || continue    # skip subdomains
+        name=$(cat "$d/name" 2>/dev/null || true)
+        if [[ $name == package-* ]]; then
+            printf '%s\n' "$d"
+            return 0
+        fi
+    done
+    return 1
+}
+
+RAPL=$(find_package_rapl || true)
+PL1_UW="${RAPL}/constraint_0_power_limit_uw"   # PL1, sustained
+PL2_UW="${RAPL}/constraint_1_power_limit_uw"   # PL2, short-term boost
 
 platform_profile_str() {
     if [[ -r "$PLATFORM_PROFILE" ]]; then
@@ -98,6 +118,17 @@ max_perf_pct_str() {
     fi
 }
 
+# tuned-adm active prints "Current active profile: X" (and, with tuned-ppd,
+# possibly a second "Current active profile (tuned-adm): Y" line).
+active_profile() {
+    local p
+    p=$(tuned-adm active 2>/dev/null | awk -F': ' '/^Current active profile: /{print $2; exit}') || true
+    if [[ -z "$p" ]]; then
+        p=$(tuned-adm active 2>/dev/null | awk -F': ' '/^Current active profile/{print $2; exit}') || true
+    fi
+    echo "${p:-none}"
+}
+
 usage() {
     echo "Usage: $0 {performance|low-power|balanced|status}" >&2
     exit 2
@@ -105,7 +136,7 @@ usage() {
 
 case "${1:-}" in
     performance)
-        TUNED_PROFILE="latency-performance"
+        TUNED_PROFILE="perf-laptop"   # custom profile in /etc/tuned/perf-laptop/
         PL1_W=75
         PL2_W=140
         ;;
@@ -120,15 +151,25 @@ case "${1:-}" in
         PL2_W=115
         ;;
     status)
-        echo "TuneD profile:    $(tuned-adm active)"
+        echo "TuneD profile:    $(active_profile)"
         echo "Platform profile: $(platform_profile_str)"
         echo "Max perf pct:     $(max_perf_pct_str)"
-        if [[ -r "$PL1_UW" && -r "$PL2_UW" ]]; then
+        if [[ -n "$RAPL" && -r "$PL1_UW" && -r "$PL2_UW" ]]; then
+            echo "RAPL package:     $RAPL"
             echo "PL1 (sustained):  $(( $(cat "$PL1_UW") / 1000000 )) W"
             echo "PL2 (boost):      $(( $(cat "$PL2_UW") / 1000000 )) W"
         else
-            echo "PL1/PL2:          RAPL interface not readable"
+            echo "PL1/PL2:          RAPL package domain not found or not readable"
         fi
+        echo "RAPL topology:"
+        for d in /sys/class/powercap/intel-rapl:* /sys/class/powercap/intel-rapl-mmio:*; do
+            b=${d##*/}
+            [[ $b =~ ^(intel-rapl|intel-rapl-mmio):[0-9]+(:[0-9]+)?$ ]] || continue
+            n=$(cat "$d/name" 2>/dev/null) || continue
+            mark=""
+            [[ $d == "$RAPL" ]] && mark="   <-- managed by this script"
+            echo "  $d ($n)$mark"
+        done
         exit 0
         ;;
     *)
@@ -136,6 +177,10 @@ case "${1:-}" in
         ;;
 esac
 
+if [[ -z "$RAPL" ]]; then
+    echo "Error: no MSR-based RAPL package domain found in /sys/class/powercap." >&2
+    exit 1
+fi
 if [[ ! -w "$PL1_UW" || ! -w "$PL2_UW" ]]; then
     echo "Error: RAPL power-limit interface unavailable or not writable (need root)." >&2
     exit 1
@@ -156,17 +201,19 @@ tuned-adm profile "$TUNED_PROFILE"
 echo "Applying max_perf_pct:  ${MAX_PERF_PCT_VAL} (% of intel_pstate max)"
 printf '%s\n' "$MAX_PERF_PCT_VAL" > "$MAX_PERF_PCT"
 
-echo "Applying power limits:  PL1=${PL1_W} W, PL2=${PL2_W} W"
-printf '%s\n' "$PL1_MICRO" > "$PL1_UW"
+# PL2 first: when raising limits, writing PL1 while PL2 is still low lets
+# firmware clamp PL1 down to the old PL2.
+echo "Applying power limits:  PL2=${PL2_W} W, PL1=${PL1_W} W"
 printf '%s\n' "$PL2_MICRO" > "$PL2_UW"
+printf '%s\n' "$PL1_MICRO" > "$PL1_UW"
 
 ACTUAL_PL1=$(( $(cat "$PL1_UW") / 1000000 ))
 ACTUAL_PL2=$(( $(cat "$PL2_UW") / 1000000 ))
-ACTUAL_MAX_PCT=$(( $(cat "$MAX_PERF_PCT") ))
+ACTUAL_MAX_PCT=$(cat "$MAX_PERF_PCT")
 
 echo
 echo "Active configuration:"
-echo "  TuneD profile:    $(tuned-adm active)"
+echo "  TuneD profile:    $(active_profile)"
 echo "  Platform profile: $(platform_profile_str)"
 echo "  Max perf pct:     ${ACTUAL_MAX_PCT}   (requested ${MAX_PERF_PCT_VAL})"
 echo "  PL1 (sustained):  ${ACTUAL_PL1} W   (requested ${PL1_W} W)"
