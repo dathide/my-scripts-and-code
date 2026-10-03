@@ -75,8 +75,7 @@ cat >/usr/local/sbin/acer-mode <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 
-MAX_PERF_PCT=/sys/devices/system/cpu/intel_pstate/max_perf_pct
-MAX_PERF_PCT_VAL=85                          # applied on every profile
+MAX_PERF_PCT=/sys/devices/system/cpu/intel_pstate/max_perf_pct   # reported only; not managed by this script
 PLATFORM_PROFILE=/sys/firmware/acpi/platform_profile   # read-write when the ACPI driver is present; TuneD sets it (drives EC fan curves)
 
 # --- RAPL: auto-detect the CPU package domain (MSR interface) ---
@@ -136,8 +135,8 @@ usage() {
 
 case "${1:-}" in
     performance)
-        TUNED_PROFILE="perf-laptop"   # custom profile in /etc/tuned/perf-laptop/
-        PL1_W=75
+        TUNED_PROFILE="latency-performance" # While using thermald with the OEM adaptive policy disabled, thermald manages max frequency in latency-performance mode.
+        PL1_W=85
         PL2_W=140
         ;;
     low-power)
@@ -185,21 +184,12 @@ if [[ ! -w "$PL1_UW" || ! -w "$PL2_UW" ]]; then
     echo "Error: RAPL power-limit interface unavailable or not writable (need root)." >&2
     exit 1
 fi
-if [[ ! -w "$MAX_PERF_PCT" ]]; then
-    echo "Error: $MAX_PERF_PCT unavailable or not writable (need root; is the intel_pstate driver active?)." >&2
-    exit 1
-fi
 
 PL1_MICRO=$(( PL1_W * 1000000 ))
 PL2_MICRO=$(( PL2_W * 1000000 ))
 
 echo "Applying TuneD profile: $TUNED_PROFILE"
 tuned-adm profile "$TUNED_PROFILE"
-
-# Written after the TuneD switch on purpose: activating a profile can reset
-# intel_pstate tunables, so this write must come second to stick.
-echo "Applying max_perf_pct:  ${MAX_PERF_PCT_VAL} (% of intel_pstate max)"
-printf '%s\n' "$MAX_PERF_PCT_VAL" > "$MAX_PERF_PCT"
 
 # PL2 first: when raising limits, writing PL1 while PL2 is still low lets
 # firmware clamp PL1 down to the old PL2.
@@ -209,17 +199,16 @@ printf '%s\n' "$PL1_MICRO" > "$PL1_UW"
 
 ACTUAL_PL1=$(( $(cat "$PL1_UW") / 1000000 ))
 ACTUAL_PL2=$(( $(cat "$PL2_UW") / 1000000 ))
-ACTUAL_MAX_PCT=$(cat "$MAX_PERF_PCT")
 
 echo
 echo "Active configuration:"
 echo "  TuneD profile:    $(active_profile)"
 echo "  Platform profile: $(platform_profile_str)"
-echo "  Max perf pct:     ${ACTUAL_MAX_PCT}   (requested ${MAX_PERF_PCT_VAL})"
+echo "  Max perf pct:     $(max_perf_pct_str)"
 echo "  PL1 (sustained):  ${ACTUAL_PL1} W   (requested ${PL1_W} W)"
 echo "  PL2 (boost):      ${ACTUAL_PL2} W   (requested ${PL2_W} W)"
 
-if (( ACTUAL_PL1 != PL1_W || ACTUAL_PL2 != PL2_W || ACTUAL_MAX_PCT != MAX_PERF_PCT_VAL )); then
+if (( ACTUAL_PL1 != PL1_W || ACTUAL_PL2 != PL2_W )); then
     echo "  note: the driver/firmware clamped a requested value; shown values are what the system accepted." >&2
 fi
 EOF
