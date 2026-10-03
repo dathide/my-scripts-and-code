@@ -135,7 +135,7 @@ usage() {
 
 case "${1:-}" in
     performance)
-        TUNED_PROFILE="latency-performance" # While using thermald with the OEM adaptive policy disabled, thermald manages max frequency in latency-performance mode.
+        TUNED_PROFILE="latency-performance" # While using thermald with the OEM adaptive policy disabled, thermald manages max frequency.
         PL1_W=85
         PL2_W=140
         ;;
