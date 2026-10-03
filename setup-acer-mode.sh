@@ -78,11 +78,19 @@ set -euo pipefail
 MAX_PERF_PCT=/sys/devices/system/cpu/intel_pstate/max_perf_pct   # reported only; not managed by this script
 PLATFORM_PROFILE=/sys/firmware/acpi/platform_profile   # read-write when the ACPI driver is present; TuneD sets it (drives EC fan curves)
 
+# Stock/default limits on this machine (display-only reference values, shown
+# in status/summary so current-vs-default is visible at a glance)
+DEFAULT_PL1_W=85
+DEFAULT_PL2_W=140
+DEFAULT_PSYS_W=310
+
 # --- RAPL: auto-detect the CPU package domain (MSR interface) ---
 # /sys/class/powercap holds several intel-rapl entries. We want the top-level
 # MSR domain whose name is "package-*" (e.g. intel-rapl:0). Deliberately skipped:
 #   intel-rapl:X:Y      subdomains (core/uncore/gfx) - energy counters, not limits
 #   intel-rapl-mmio:*   MMIO view of the same package - MSR domain is canonical
+# Matched separately below: the top-level domain named "psys" (whole-platform
+# budget: CPU + dGPU + board), e.g. intel-rapl:1 on this machine.
 find_package_rapl() {
     local d b name
     for d in /sys/class/powercap/intel-rapl:*; do
@@ -97,9 +105,25 @@ find_package_rapl() {
     return 1
 }
 
+find_psys_rapl() {
+    local d b name
+    for d in /sys/class/powercap/intel-rapl:*; do
+        b=${d##*/}
+        [[ $b =~ ^intel-rapl:[0-9]+$ ]] || continue
+        name=$(cat "$d/name" 2>/dev/null || true)
+        if [[ $name == psys ]]; then
+            printf '%s\n' "$d"
+            return 0
+        fi
+    done
+    return 1
+}
+
 RAPL=$(find_package_rapl || true)
+PSYS=$(find_psys_rapl || true)
 PL1_UW="${RAPL}/constraint_0_power_limit_uw"   # PL1, sustained
 PL2_UW="${RAPL}/constraint_1_power_limit_uw"   # PL2, short-term boost
+PSYS_UW="${PSYS}/constraint_0_power_limit_uw"  # psys, sustained platform budget
 
 platform_profile_str() {
     if [[ -r "$PLATFORM_PROFILE" ]]; then
@@ -138,35 +162,53 @@ case "${1:-}" in
         TUNED_PROFILE="latency-performance" # While using thermald with the OEM adaptive policy disabled, thermald manages max frequency.
         PL1_W=85
         PL2_W=140
+        PSYS_W=250    # stock is 310 W; 250 only trims worst-case CPU+GPU coincident spikes
         ;;
     low-power)
         TUNED_PROFILE="powersave"
         PL1_W=40
         PL2_W=70
+        PSYS_W=170    # hard platform budget; leaves ~50 W CPU headroom with the GPU uncapped
         ;;
     balanced)
         TUNED_PROFILE="balanced-battery"
         PL1_W=55
         PL2_W=115
+        PSYS_W=200    # GPU keeps full clocks; CPU spikes above ~65 W get shaved (FPS-neutral when GPU-bound)
         ;;
     status)
-        echo "TuneD profile:    $(active_profile)"
-        echo "Platform profile: $(platform_profile_str)"
-        echo "Max perf pct:     $(max_perf_pct_str)"
+        echo "TuneD profile:    $(active_profile)   (managed via tuned-adm)"
+        echo "Platform profile: $(platform_profile_str)   (set by TuneD)"
+        echo "Max perf pct:     $(max_perf_pct_str)   (reported only, not managed)"
+        echo
+        echo "Managed by this script:"
         if [[ -n "$RAPL" && -r "$PL1_UW" && -r "$PL2_UW" ]]; then
-            echo "RAPL package:     $RAPL"
-            echo "PL1 (sustained):  $(( $(cat "$PL1_UW") / 1000000 )) W"
-            echo "PL2 (boost):      $(( $(cat "$PL2_UW") / 1000000 )) W"
+            echo "  PL1 (sustained):  $(( $(cat "$PL1_UW") / 1000000 )) W   (default ${DEFAULT_PL1_W} W)"
+            echo "  PL2 (boost):      $(( $(cat "$PL2_UW") / 1000000 )) W   (default ${DEFAULT_PL2_W} W)"
         else
-            echo "PL1/PL2:          RAPL package domain not found or not readable"
+            echo "  PL1/PL2:          RAPL package domain not found or not readable"
         fi
+        if [[ -n "$PSYS" && -r "$PSYS_UW" ]]; then
+            echo "  psys (platform):  $(( $(cat "$PSYS_UW") / 1000000 )) W   (default ${DEFAULT_PSYS_W} W)"
+        else
+            echo "  psys (platform):  not present"
+        fi
+        echo
         echo "RAPL topology:"
         for d in /sys/class/powercap/intel-rapl:* /sys/class/powercap/intel-rapl-mmio:*; do
-            b=${d##*/}
-            [[ $b =~ ^(intel-rapl|intel-rapl-mmio):[0-9]+(:[0-9]+)?$ ]] || continue
             n=$(cat "$d/name" 2>/dev/null) || continue
-            mark=""
-            [[ $d == "$RAPL" ]] && mark="   <-- managed by this script"
+            b=${d##*/}
+            if [[ $d == "$RAPL" ]]; then
+                mark="   <-- managed: PL1/PL2"
+            elif [[ $d == "$PSYS" ]]; then
+                mark="   <-- managed: psys"
+            elif [[ $b == intel-rapl-mmio:* ]]; then
+                mark="   (not managed: MMIO duplicate view)"
+            elif [[ $b =~ ^intel-rapl:[0-9]+:[0-9]+$ ]]; then
+                mark="   (not managed: subdomain)"
+            else
+                mark=""
+            fi
             echo "  $d ($n)$mark"
         done
         exit 0
@@ -184,12 +226,27 @@ if [[ ! -w "$PL1_UW" || ! -w "$PL2_UW" ]]; then
     echo "Error: RAPL power-limit interface unavailable or not writable (need root)." >&2
     exit 1
 fi
+if [[ -n "$PSYS" && ! -w "$PSYS_UW" ]]; then
+    echo "Error: $PSYS_UW exists but is not writable (need root, or firmware locked psys)." >&2
+    exit 1
+fi
 
 PL1_MICRO=$(( PL1_W * 1000000 ))
 PL2_MICRO=$(( PL2_W * 1000000 ))
+PSYS_MICRO=$(( PSYS_W * 1000000 ))
 
 echo "Applying TuneD profile: $TUNED_PROFILE"
 tuned-adm profile "$TUNED_PROFILE"
+
+# psys first: raise the outer platform budget before the inner package limits
+# so a stale lower psys can't clamp the new PL values. psys persists across
+# mode switches (verified on this machine), so every mode sets it explicitly.
+if [[ -n "$PSYS" ]]; then
+    echo "Applying psys limit:    ${PSYS_W} W (platform budget)"
+    printf '%s\n' "$PSYS_MICRO" > "$PSYS_UW"
+else
+    echo "Warning: no psys domain found; applying package limits only." >&2
+fi
 
 # PL2 first: when raising limits, writing PL1 while PL2 is still low lets
 # firmware clamp PL1 down to the old PL2.
@@ -199,16 +256,23 @@ printf '%s\n' "$PL1_MICRO" > "$PL1_UW"
 
 ACTUAL_PL1=$(( $(cat "$PL1_UW") / 1000000 ))
 ACTUAL_PL2=$(( $(cat "$PL2_UW") / 1000000 ))
+ACTUAL_PSYS=${PSYS_W}    # neutral default if psys is absent, so the clamp check passes
+if [[ -n "$PSYS" ]]; then
+    ACTUAL_PSYS=$(( $(cat "$PSYS_UW") / 1000000 ))
+fi
 
 echo
 echo "Active configuration:"
 echo "  TuneD profile:    $(active_profile)"
 echo "  Platform profile: $(platform_profile_str)"
-echo "  Max perf pct:     $(max_perf_pct_str)"
-echo "  PL1 (sustained):  ${ACTUAL_PL1} W   (requested ${PL1_W} W)"
-echo "  PL2 (boost):      ${ACTUAL_PL2} W   (requested ${PL2_W} W)"
+echo "  Max perf pct:     $(max_perf_pct_str)   (reported only)"
+if [[ -n "$PSYS" ]]; then
+    echo "  psys (platform):  ${ACTUAL_PSYS} W   (requested ${PSYS_W} W, default ${DEFAULT_PSYS_W} W)"
+fi
+echo "  PL1 (sustained):  ${ACTUAL_PL1} W   (requested ${PL1_W} W, default ${DEFAULT_PL1_W} W)"
+echo "  PL2 (boost):      ${ACTUAL_PL2} W   (requested ${PL2_W} W, default ${DEFAULT_PL2_W} W)"
 
-if (( ACTUAL_PL1 != PL1_W || ACTUAL_PL2 != PL2_W )); then
+if (( ACTUAL_PL1 != PL1_W || ACTUAL_PL2 != PL2_W || ACTUAL_PSYS != PSYS_W )); then
     echo "  note: the driver/firmware clamped a requested value; shown values are what the system accepted." >&2
 fi
 EOF
