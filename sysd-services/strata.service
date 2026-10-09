@@ -9,7 +9,7 @@ Type=exec
 WorkingDirectory=%h/m2a/ai-chat/strata
 # systemd does NOT expand ~ or support `cd x; ./y`, so: absolute path + WorkingDirectory.
 # Running via /bin/bash avoids needing the exec bit on setup.sh.
-ExecStart=/bin/bash %h/m2a/ai-chat/strata/setup.sh
+ExecStart=/bin/bash %h/m2a/ai-chat/strata/setup.sh --no-browser
 
 # Optional: put extra env vars (API keys, model dirs, CUDA/PATH tweaks) in this file.
 # Leading "-" means "ignore if missing".
