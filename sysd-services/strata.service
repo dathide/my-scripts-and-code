@@ -1,0 +1,39 @@
+[Unit]
+Description=Strata LLM server (~/m2a/ai-chat/strata)
+Documentation=file://%h/m2a/ai-chat/strata/setup.sh
+# User units start after the user manager's own target; keep this last in boot order.
+After=default.target
+
+[Service]
+Type=exec
+WorkingDirectory=%h/m2a/ai-chat/strata
+# systemd does NOT expand ~ or support `cd x; ./y`, so: absolute path + WorkingDirectory.
+# Running via /bin/bash avoids needing the exec bit on setup.sh.
+ExecStart=/bin/bash %h/m2a/ai-chat/strata/setup.sh
+
+# Optional: put extra env vars (API keys, model dirs, CUDA/PATH tweaks) in this file.
+# Leading "-" means "ignore if missing".
+EnvironmentFile=-%h/.config/strata.env
+Environment=PYTHONUNBUFFERED=1
+
+# Optional, only if setup.sh needs login-shell PATH (conda/nvm/etc).
+# Use this instead of the ExecStart above in that case:
+# ExecStart=/bin/bash -lc 'exec ~/m2a/ai-chat/strata/setup.sh'
+
+Restart=on-failure
+RestartSec=5s
+
+# Ctrl-C-ish shutdown so the server can release the GPU/port cleanly.
+KillSignal=SIGINT
+TimeoutStopSec=30
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=strata
+
+# Optional resource sanity for a local LLM host; uncomment as needed.
+# Nice=10
+# MemoryHigh=24G
+
+[Install]
+WantedBy=default.target
