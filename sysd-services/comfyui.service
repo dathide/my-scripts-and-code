@@ -1,0 +1,33 @@
+[Unit]
+Description=ComfyUI
+Documentation=file://%h/m2a/ai-img/comfyui/main.py
+After=default.target network-online.target
+
+[Service]
+Type=exec
+# ComfyUI resolves custom_nodes/, models/, input/, output/ relative to this.
+WorkingDirectory=%h/m2a/ai-img/comfyui
+
+# `source .venv/bin/activate && python` == call the venv's interpreter directly.
+# Do NOT use system python3 here; it will not see ComfyUI's deps.
+ExecStart=%h/m2a/ai-img/comfyui/.venv/bin/python main.py --listen 127.0.0.1 --disable-auto-launch
+
+Environment=VIRTUAL_ENV=%h/m2a/ai-img/comfyui/.venv
+Environment=PATH=%h/m2a/ai-img/comfyui/.venv/bin:%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PYTHONUNBUFFERED=1
+Environment=HF_HOME=%h/.cache/huggingface
+# Environment=CUDA_VISIBLE_DEVICES=0
+
+EnvironmentFile=-%h/.config/comfyui.env
+
+Restart=on-failure
+RestartSec=10s
+KillSignal=SIGINT
+TimeoutStopSec=60
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=comfyui
+
+[Install]
+WantedBy=default.target
