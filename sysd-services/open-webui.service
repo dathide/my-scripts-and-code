@@ -1,0 +1,39 @@
+[Unit]
+Description=Open WebUI (http://localhost:9000)
+Documentation=file://%h/m2a/ai-chat/venv-open-webui/bin/open-webui
+After=default.target
+
+[Service]
+Type=exec
+WorkingDirectory=%h/m2a/ai-chat
+
+# `source venv/bin/activate` needs a shell, and systemd never starts one.
+# Running the launcher inside the venv is equivalent: it picks that venv's
+# interpreter from its own shebang.
+ExecStart=%h/m2a/ai-chat/venv-open-webui/bin/open-webui serve --port 9000
+
+Environment=VIRTUAL_ENV=%h/m2a/ai-chat/venv-open-webui
+# systemd does no shell expansion here, so this replaces PATH outright.
+# venv/bin first keeps uv/uvx/python (used for tools & downloads) inside the venv.
+Environment=PATH=%h/m2a/ai-chat/venv-open-webui/bin:%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PYTHONUNBUFFERED=1
+
+# Optional: keep Open WebUI's DB/uploads next to the project instead of ~/.open-webui
+# Environment=DATA_DIR=%h/m2a/ai-chat/open-webui-data
+
+# Optional secrets/flags (WEBUI_AUTH, SECRET_KEY, OFFLINE_MODE, HF_HOME) in KEY=VALUE form.
+# "-" prefix = ignore if the file does not exist.
+EnvironmentFile=-%h/.config/open-webui.env
+
+Restart=on-failure
+RestartSec=5s
+# SIGINT lets uvicorn release port 9000 cleanly on stop/restart.
+KillSignal=SIGINT
+TimeoutStopSec=30
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=open-webui
+
+[Install]
+WantedBy=default.target
