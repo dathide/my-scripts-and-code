@@ -10,7 +10,7 @@ WorkingDirectory=%h/m2a/ai-img/comfyui
 
 # `source .venv/bin/activate && python` == call the venv's interpreter directly.
 # Do NOT use system python3 here; it will not see ComfyUI's deps.
-ExecStart=%h/m2a/ai-img/comfyui/.venv/bin/python main.py --listen 127.0.0.1 --disable-auto-launch
+ExecStart=%h/m2a/ai-img/comfyui/.venv/bin/python main.py --listen --port 8188 --disable-auto-launch
 
 Environment=VIRTUAL_ENV=%h/m2a/ai-img/comfyui/.venv
 Environment=PATH=%h/m2a/ai-img/comfyui/.venv/bin:%h/.local/bin:/usr/local/bin:/usr/bin:/bin
