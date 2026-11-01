@@ -125,7 +125,7 @@ model:
 
   # Size of the key/value cache to allocate, in tokens (default: 4096).
   # Must be a multiple of 256.
-  cache_size: 65536
+  cache_size: 97280
 
   # Enable different cache modes for VRAM savings (default: FP16).
   # Specify the pair k_bits,v_bits where k_bits and v_bits are integers from 2-8 (i.e. 8,8).
